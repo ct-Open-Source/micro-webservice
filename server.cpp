@@ -73,7 +73,7 @@ int main(int argc, const char *argv[])
 
   for (int i = 0; i < numWorkers; ++i)
   {
-    workers.emplace_back(acceptor, nullptr);
+    workers.emplace_back(acceptor, &logger);
     workers.back().start();
   }
 

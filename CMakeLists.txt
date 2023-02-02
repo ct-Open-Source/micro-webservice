@@ -7,14 +7,31 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG -Wconversion -Wno-pragmas")
 project(micro-webservice)
 
 set(BOOST_ROOT $ENV{BOOST_ROOT})
-find_package(Boost 1.71.0 COMPONENTS date_time REQUIRED)
+find_package(Boost 1.71.0 COMPONENTS program_options REQUIRED)
 message(STATUS "Boost include dirs: ${Boost_INCLUDE_DIRS}")
 message(STATUS "Boost lib dirs: ${Boost_LIBRARY_DIRS}")
 message(STATUS "Boost libs: ${Boost_LIBRARIES}")
 
+# GMP
+find_path(GMP_C_INCLUDES
+  NAMES gmp.h
+  DOC "GMP C header"
+)
+message(STATUS "GMP include dir: ${GMP_C_INCLUDES}")
+find_library(GMP_C_LIBRARIES
+  NAMES gmp
+  DOC "GMP C libraries"
+)
+cmake_path(GET GMP_C_LIBRARIES PARENT_PATH GMP_LIB_DIR)
+message(STATUS "GMP lib dir: ${GMP_LIB_DIR}")
+
+include_directories(${GMP_C_INCLUDES})
+link_directories(${GMP_LIB_DIR})
+
 add_executable(micro-webservice 
   server.cpp
   httpworker.cpp
+  uri.cpp
 )
 set_target_properties(micro-webservice PROPERTIES LINK_FLAGS_RELEASE "-dead_strip")
 
@@ -37,6 +54,7 @@ target_include_directories(micro-webservice
 
 target_link_libraries(micro-webservice
 	${Boost_LIBRARIES}
+  gmp
 )
 
 add_custom_command(TARGET micro-webservice
