@@ -57,18 +57,34 @@ namespace number_theory
         static std::vector<INT> factors(INT x)
         {
             std::vector<INT> result;
-            INT i = 1;
-            while (i * i <= x)
+            if (is_prime(x, 5))
             {
-                if (x % i == 0)
+                return result;
+            }
+            INT z = x;
+            while (z > 1)
+            {
+                INT i = 2;
+                bool found = false;
+                INT p;
+                while (i*i <= z and !found)
                 {
-                    result.push_back(i);
-                    if (x / i != i)
+                    if (z % i == 0)
                     {
-                        result.push_back(x / i);
+                        found = true;
+                        p = i;
+                    }
+                    else
+                    {
+                        ++i;
                     }
                 }
-                ++i;
+                if (!found)
+                {
+                    p = z;
+                }
+                result.push_back(p);
+                z /= p;
             }
             return result;
         }
