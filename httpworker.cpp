@@ -99,7 +99,11 @@ void HttpWorker::readRequest()
 void HttpWorker::processRequest(http::request<http::string_body> const &req)
 {
   URI uri;
+#ifdef USE_STRINGVIEW_TOSTRING
+  uri.parseTarget(req.target().to_string());
+#else
   uri.parseTarget(req.target());
+#endif
   if (mLogCallback != nullptr)
   {
     std::ostringstream ss;
