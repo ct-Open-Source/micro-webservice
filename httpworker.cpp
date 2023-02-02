@@ -211,7 +211,7 @@ void HttpWorker::processRequest(http::request<http::string_body> const &req)
   }
   else
   {
-    sendBadResponse(http::status::bad_request, "");
+    sendBadResponse(http::status::not_found, "");
   }
 }
 
