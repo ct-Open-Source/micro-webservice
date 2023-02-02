@@ -19,13 +19,14 @@
 #define __httpworker_hpp__
 
 #include <string>
-#include <ctime>
+#include <chrono>
+#include <functional>
+#include <optional>
 
 #include <boost/beast/core.hpp>
 #include <boost/beast/http.hpp>
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/optional/optional.hpp>
-#include <boost/function.hpp>
 
 namespace beast = boost::beast;
 namespace http = beast::http;
@@ -35,7 +36,8 @@ class HttpWorker
   using tcp = boost::asio::ip::tcp;
 
 public:
-  typedef boost::function<void(const std::string&)> log_callback_t;
+  typedef std::function<void(const std::string&)> log_callback_t;
+
   HttpWorker(HttpWorker const &) = delete;
   HttpWorker& operator=(HttpWorker const &) = delete;
   HttpWorker(
@@ -49,17 +51,16 @@ private:
   tcp::acceptor &mAcceptor;
   tcp::socket mSocket{mAcceptor.get_executor()};
   beast::flat_buffer mBuffer;
-  boost::optional<http::request_parser<http::string_body>> mParser;
+  std::optional<http::request_parser<http::string_body>> mParser;
   boost::asio::basic_waitable_timer<std::chrono::steady_clock> mReqTimeout{
     mAcceptor.get_executor(),
     (std::chrono::steady_clock::time_point::max)()};
-  boost::optional<http::response<http::string_body>> mResponse;
-  boost::optional<http::response_serializer<http::string_body>> mSerializer;
+  std::optional<http::response<http::string_body>> mResponse;
+  std::optional<http::response_serializer<http::string_body>> mSerializer;
   log_callback_t *mLogCallback;
 
   void accept();
   void readRequest();
-  void sendResponse(http::request<http::string_body> const &);
   void processRequest(http::request<http::string_body> const &req);
   void sendBadResponse(http::status status, const std::string &error);
   void checkTimeout();

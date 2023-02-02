@@ -75,21 +75,6 @@ void HttpWorker::readRequest()
 
 void HttpWorker::processRequest(http::request<http::string_body> const &req)
 {
-  switch (req.method())
-  {
-  case http::verb::get:
-    sendResponse(req);
-    break;
-  default:
-    sendBadResponse(
-        http::status::bad_request,
-        "Invalid request method '" + std::string(req.method_string()) + "'\r\n");
-    break;
-  }
-}
-
-void HttpWorker::sendResponse(http::request<http::string_body> const &req)
-{
   if (mLogCallback != nullptr) {
     std::ostringstream ss;
     ss << mSocket.remote_endpoint().address().to_string() << ' '
@@ -101,7 +86,7 @@ void HttpWorker::sendResponse(http::request<http::string_body> const &req)
     mResponse->result(http::status::ok);
     mResponse->set(http::field::server, std::string("Micro server ") + SERVER_VERSION);
     mResponse->set(http::field::content_type, "text/plain");
-    mResponse->set("Access-Control-Allow-Origin", "*");
+    mResponse->set(http::field::access_control_allow_origin, "*");
     mResponse->body() = "Hallo, Welt!";
     mResponse->prepare_payload();
     mSerializer.emplace(*mResponse);
@@ -115,9 +100,8 @@ void HttpWorker::sendResponse(http::request<http::string_body> const &req)
           accept();
         });
   }
-  else
-  {
-    sendBadResponse(http::status::not_found, "");
+  else {
+    sendBadResponse(http::status::bad_request, "");
   }
 }
 

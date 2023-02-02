@@ -37,27 +37,25 @@ void hello() {
 
 void usage() {
   std::cout << "Usage:" << std::endl
-    << "  micro-webservice <ip> <port> <num_workers>" << std::endl
+    << "  micro-webservice <ip> <port> <num_workers> <num_threads>" << std::endl
     << std::endl
     << "for example:" << std::endl
-    << "  micro-webservice 127.0.0.1 31377 100" << std::endl
+    << "  micro-webservice 127.0.0.1 31377 100 8" << std::endl
     << std::endl;;
 }
 
 int main(int argc, const char *argv[])
 {
-  if (argc < 4) {
+  if (argc < 5) {
     usage();
     return EXIT_FAILURE;
   }
   hello();
  
-  auto host =
-      net::ip::make_address(argv[1]);
-  uint16_t port =
-      static_cast<uint16_t>(std::atoi(argv[2]));
-  int numWorkers = std::max<int>(1, std::atoi(argv[3]));
-  auto numThreads = std::thread::hardware_concurrency();
+  auto host = net::ip::make_address(argv[1]);
+  uint16_t port = static_cast<uint16_t>(std::atoi(argv[2]));
+  int numWorkers = std::max<int>(1, std::atoi(argv[3])); // std::thread::hardware_concurrency();
+  int numThreads = std::max<int>(1, std::atoi(argv[4])); // std::thread::hardware_concurrency();
 
   boost::asio::io_context ioc{numWorkers};
   tcp::acceptor acceptor{ioc, {host, port}};
@@ -75,13 +73,13 @@ int main(int argc, const char *argv[])
 
   for (int i = 0; i < numWorkers; ++i)
   {
-    workers.emplace_back(acceptor, &logger);
+    workers.emplace_back(acceptor, nullptr);
     workers.back().start();
   }
 
   std::vector<std::thread> threads;
-  threads.reserve(size_t(numThreads));
-  for (auto i = 0; i < numThreads; ++i)
+  threads.reserve(size_t(numThreads-1));
+  for (auto i = 0; i < numThreads-1; ++i)
   {
     threads.emplace_back(
     [&ioc]
@@ -92,7 +90,9 @@ int main(int argc, const char *argv[])
   std::cout << numWorkers << " workers in " << numThreads << " threads"
             << " listening on " << host << ':' << port << " ..."
             << std::endl;
+
   ioc.run();
+
   for (auto &t : threads) {
     t.join();
   }
