@@ -122,11 +122,13 @@ void HttpWorker::processRequest(http::request<http::string_body> const &req)
     }
     catch (...)
     {
-      // ignore
+      sendBadResponse(http::status::bad_request, "field \"number\" must contain a positive integer number");
+      return;
     }
     auto t0 = chrono::high_resolution_clock::now();
     std::vector<bigint> factors = number_theory::prime<bigint>::factors(x);
     auto t1 = chrono::high_resolution_clock::now();
+    auto dt = chrono::duration_cast<std::chrono::duration<double>>(t1 - t0);
     std::sort(factors.begin(), factors.end());
     pt::ptree factors_child;
     for (auto const &f : factors)
@@ -137,52 +139,64 @@ void HttpWorker::processRequest(http::request<http::string_body> const &req)
     }
     pt::ptree response;
     response.put<std::string>("number", x.convert_to<std::string>());
-    response.add_child("factors", factors_child);
-    auto dt = chrono::duration_cast<std::chrono::duration<double>>(t1 - t0);
-    response.put<double>("elapsed_msecs", 1e3 * dt.count());
+    if (factors.empty())
+    {
+      response.put<std::string>("factors", "[factors]");
+    }
+    else
+    {
+      response.add_child("factors", factors_child);
+    }
+    response.put<std::string>("elapsed_msecs", "[elapsed_msecs]");
+    response.put<std::string>("isprime", "[isprime]");
     std::ostringstream ss;
     pt::write_json(ss, response, false);
-    sendResponse(ss.str(), "application/json");
+    std::string responseStr = ss.str();
+    boost::replace_all<std::string>(responseStr, std::string("\"[isprime]\""), factors.empty() ? "true" : "false");
+    boost::replace_all<std::string>(responseStr, std::string("\"[elapsed_msecs]\""), std::to_string(1e3 * dt.count()));
+    boost::replace_all<std::string>(responseStr, std::string("\"[factors]\""), "[]");
+    sendResponse(responseStr, "application/json");
   }
   else if (req.method() == http::verb::post && uri.path() == "/prime")
   {
     pt::ptree request;
-    std::stringstream ss;
-    ss << req.body();
+    std::stringstream iss;
+    iss << req.body();
     try {
-      pt::read_json(ss, request);
+      pt::read_json(iss, request);
     }
     catch (pt::ptree_error e) {
       sendBadResponse(http::status::bad_request, e.what());
       return;
     }
-    if (request.find("number") != request.not_found()) {
-      bigint x{0};
-      try
-      {
-        x.assign(request.get<std::string>("number"));
-      }
-      catch (...)
-      {
-        sendBadResponse(http::status::bad_request, "field \"number\" must contain a positive integer number");
-        return;
-      }
-      auto t0 = chrono::high_resolution_clock::now();
-      bool isprime = number_theory::prime<bigint>::is_prime(x, 1);
-      auto t1 = chrono::high_resolution_clock::now();
-      pt::ptree response;
-      response.put<std::string>("number", x.convert_to<std::string>());
-      response.put<bool>("isprime", isprime);
-      auto dt = chrono::duration_cast<std::chrono::duration<double>>(t1 - t0);
-      response.put<double>("elapsed_msecs", 1e3 * dt.count());
-      std::ostringstream ss;
-      pt::write_json(ss, response, false);
-      sendResponse(ss.str(), "application/json");
-    }
-    else
-    {
+    if (request.find("number") == request.not_found()) {
       sendBadResponse(http::status::bad_request, "field \"number\" is missing");
+      return;
     }
+    bigint x{0};
+    try
+    {
+      x.assign(request.get<std::string>("number"));
+    }
+    catch (...)
+    {
+      sendBadResponse(http::status::bad_request, "field \"number\" must contain a positive integer number");
+      return;
+    }
+    auto t0 = chrono::high_resolution_clock::now();
+    bool isprime = number_theory::prime<bigint>::is_prime(x, 5);
+    auto t1 = chrono::high_resolution_clock::now();
+    auto dt = chrono::duration_cast<std::chrono::duration<double>>(t1 - t0);
+    pt::ptree response;
+    response.put<std::string>("elapsed_msecs", "[elapsed_msecs]");
+    response.put<std::string>("isprime", "[isprime]");
+    response.put<std::string>("number", x.convert_to<std::string>());
+    std::ostringstream ss;
+    pt::write_json(ss, response, false);
+    std::string responseStr = ss.str();
+    boost::replace_all<std::string>(responseStr, std::string("\"[elapsed_msecs]\""), std::to_string(1e3 * dt.count()));
+    boost::replace_all<std::string>(responseStr, std::string("\"[isprime]\""), isprime ? "true" : "false");
+    sendResponse(responseStr, "application/json");
   }
   else if (req.method() == http::verb::get && uri.path() == "/prime" && uri.query().find("number") != uri.query().end())
   {
@@ -194,20 +208,23 @@ void HttpWorker::processRequest(http::request<http::string_body> const &req)
     }
     catch (...)
     {
-        sendBadResponse(http::status::bad_request, "field \"number\" must contain a positive integer number");
-        return;
+      sendBadResponse(http::status::bad_request, "field \"number\" must contain a positive integer number");
+      return;
     }
     auto t0 = chrono::high_resolution_clock::now();
     bool isprime = number_theory::prime<bigint>::is_prime(x, 5);
     auto t1 = chrono::high_resolution_clock::now();
-    pt::ptree response;
-    response.put<std::string>("number", x.convert_to<std::string>());
-    response.put<bool>("isprime", isprime);
     auto dt = chrono::duration_cast<std::chrono::duration<double>>(t1 - t0);
-    response.put<double>("elapsed_msecs", 1e3 * dt.count());
+    pt::ptree response;
+    response.put<std::string>("elapsed_msecs", "[elapsed_msecs]");
+    response.put<std::string>("isprime", "[isprime]");
+    response.put<std::string>("number", x.convert_to<std::string>());
     std::ostringstream ss;
     pt::write_json(ss, response, false);
-    sendResponse(ss.str(), "application/json");
+    std::string responseStr = ss.str();
+    boost::replace_all<std::string>(responseStr, std::string("\"[elapsed_msecs]\""), std::to_string(1e3 * dt.count()));
+    boost::replace_all<std::string>(responseStr, std::string("\"[isprime]\""), isprime ? "true" : "false");
+    sendResponse(responseStr, "application/json");
   }
   else
   {
