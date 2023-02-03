@@ -96,6 +96,19 @@ void HttpWorker::readRequest()
       });
 }
 
+#ifdef SIMULATE_WORK
+uint64_t __attribute__ ((noinline)) simulateWork(uint64_t b)
+{
+  uint64_t x = 1;
+  uint64_t a = 1664525;
+  for (long i = 0; i < 100000000; ++i)
+  {
+    x = (a * x + 1013904223ULL + b - 11ULL) % 4294967296ULL;
+  }
+  return x;
+};
+#endif
+
 void HttpWorker::processRequest(http::request<http::string_body> const &req)
 {
   URI uri;
