@@ -30,34 +30,37 @@
 using tcp = boost::asio::ip::tcp;
 namespace net = boost::asio;
 
-
-void hello() {
-  std::cout << "c't demo: micro webservice " << SERVER_VERSION << " - Copyright (c) 2023 Oliver Lau <ola@ct.de>" << std::endl << std::endl;
+void hello()
+{
+  std::cout << "c't demo: micro webservice " << SERVER_VERSION << " - Copyright (c) 2023 Oliver Lau <ola@ct.de>" << std::endl
+            << std::endl;
 }
 
-void usage() {
+void usage()
+{
   std::cout << "Usage:" << std::endl
-    << "  micro-webservice <ip> <port> <num_workers> <num_threads>" << std::endl
-    << std::endl
-    << "for example:" << std::endl
-    << "  micro-webservice 127.0.0.1 31377 100 8" << std::endl
-    << std::endl;;
+            << "  micro-webservice <ip> <port> <num_workers> <num_threads>" << std::endl
+            << std::endl
+            << "for example:" << std::endl
+            << "  micro-webservice 127.0.0.1 31377 100 8" << std::endl
+            << std::endl;
 }
 
 int main(int argc, const char *argv[])
 {
-  if (argc < 5) {
+  if (argc < 5)
+  {
     usage();
     return EXIT_FAILURE;
   }
   hello();
- 
+
   auto host = net::ip::make_address(argv[1]);
   uint16_t port = static_cast<uint16_t>(std::atoi(argv[2]));
   int numWorkers = std::max<int>(1, std::atoi(argv[3])); // std::thread::hardware_concurrency();
   int numThreads = std::max<int>(1, std::atoi(argv[4])); // std::thread::hardware_concurrency();
 
-  boost::asio::io_context ioc{numWorkers};
+  boost::asio::io_context ioc;
   tcp::acceptor acceptor{ioc, {host, port}};
   std::list<HttpWorker> workers;
 
@@ -66,9 +69,9 @@ int main(int argc, const char *argv[])
   std::mutex logMtx;
   HttpWorker::log_callback_t logger = [&logMtx, &connId](const std::string &msg)
   {
-      std::lock_guard<std::mutex> lock(logMtx);
-      std::cout << std::chrono::system_clock::now() << ' '
-        << msg << ' ' << (connId++) << std::endl;
+    std::lock_guard<std::mutex> lock(logMtx);
+    std::cout << std::chrono::system_clock::now() << ' '
+              << msg << ' ' << (connId++) << std::endl;
   };
 
   for (int i = 0; i < numWorkers; ++i)
@@ -76,24 +79,27 @@ int main(int argc, const char *argv[])
     workers.emplace_back(acceptor, nullptr);
     workers.back().start();
   }
-
+  
   std::vector<std::thread> threads;
-  threads.reserve(size_t(numThreads-1));
-  for (auto i = 0; i < numThreads-1; ++i)
+  threads.reserve(size_t(numThreads - 1));
+  for (auto i = 0; i < numThreads - 1; ++i)
   {
     threads.emplace_back(
-    [&ioc]
-    {
-      ioc.run();
-    });
+        [&ioc]
+        {
+          ioc.run();
+        });
   }
-  std::cout << numWorkers << " workers in " << numThreads << " threads"
-            << " listening on " << host << ':' << port << " ..."
-            << std::endl;
+
+  std::cout << numWorkers << " workers" 
+     << (numThreads > 1 ? " in " + std::to_string(numThreads) + " threads" : " in 1 thread")
+     << " listening on " << host << ':' << port << " ..."
+     << std::endl;
 
   ioc.run();
 
-  for (auto &t : threads) {
+  for (auto &t : threads)
+  {
     t.join();
   }
 
