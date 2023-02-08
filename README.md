@@ -41,7 +41,7 @@ CMAKE_BUILD_TYPE=Release cmake .
 
 Wenn Sie statt eines Release ein Binary zum Debuggen erzeugen wollen, wählen Sie „Debug“ statt „Release“.
 
-Falls CMake die Boost-Bibliothek nicht finden kann, müssen Sie den Pfad (beispiels /opt/boost-1_81_0) dorthin in der Umgebungsvariable `BOOST_ROOT` angeben:
+Falls CMake die Boost-Bibliothek nicht finden kann, müssen Sie den Pfad (beispielsweise /opt/boost-1_81_0) dorthin in der Umgebungsvariable `BOOST_ROOT` angeben:
 
 ```
 BOOST_ROOT=/opt/boost-1_18_0
