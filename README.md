@@ -1,4 +1,4 @@
-# c’t Demo: Micro-Webservice
+# c’t-Demo: Micro-Webservice
 
 ## Für c’t-Leser
 
