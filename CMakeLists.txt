@@ -2,12 +2,12 @@ cmake_minimum_required(VERSION 3.16)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g3 -ggdb -DDEBUG -Wall -Wextra -Wconversion -Wreorder -Wuninitialized -Wtype-limits -Wno-pragmas")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG -Wconversion -Wno-pragmas")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG -Wno-deprecated")
 
 project(micro-webservice)
 
 set(BOOST_ROOT $ENV{BOOST_ROOT})
-find_package(Boost 1.71.0 COMPONENTS date_time REQUIRED)
+find_package(Boost 1.71.0 REQUIRED)
 message(STATUS "Boost include dirs: ${Boost_INCLUDE_DIRS}")
 message(STATUS "Boost lib dirs: ${Boost_LIBRARY_DIRS}")
 message(STATUS "Boost libs: ${Boost_LIBRARIES}")
