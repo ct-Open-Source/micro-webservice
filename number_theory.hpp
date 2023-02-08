@@ -3,6 +3,7 @@
 
 #include <boost/random.hpp>
 #include <vector>
+#include <chrono>
 
 namespace number_theory
 {
@@ -30,6 +31,7 @@ namespace number_theory
         {
             typedef boost::random::independent_bits_engine<boost::random::mt19937, 16, INT> generator_type;
             generator_type random_number;
+            random_number.seed(static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count()));
 
             INT a = 2 + random_number() % (n - 4);
             INT x = power(a, d, n);
