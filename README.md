@@ -2,7 +2,7 @@
 
 ## Für c’t-Leser
 
-Dieses Repository enthält den Quellcode für den in c’t 6/2023, S. 132, entwickelten Micro-Webservice. Um es auf Ihren Rechner zu bekommen, müssen Sie es klonen:
+Dieses Repository enthält den Quellcode für den in c’t 7/2023, S. !!!, entwickelten Micro-Webservice. Um es auf Ihren Rechner zu bekommen, müssen Sie es klonen:
 
 ```
 git clone https://github.com/ct-Open-Source/micro-webservice.git
