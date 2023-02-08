@@ -1,8 +1,14 @@
 # c’t Demo: Micro-Webservice
 
+## Für c’t-Leser
 
+Dieses Repository enthält den Quellcode für den in c’t 6/2023, S. 132, entwickelten Micro-Webservice.
 
+Der Code für den 1. Teil befindet sich im Branch „part1“. Sie checken ihn aus mit
 
+```
+git checkout part1
+```
 
 _Copyright ©️ 2023 [Oliver Lau](mailto:ola@ct.de), [Heise](https://www.heise.de/) Medien GmbH & Co. KG_
 
