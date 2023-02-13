@@ -27,6 +27,7 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/multiprecision/gmp.hpp>
+#include <boost/regex.hpp>
 
 #include "server.hpp"
 #include "httpworker.hpp"
@@ -96,18 +97,17 @@ void HttpWorker::readRequest()
       });
 }
 
-#ifdef SIMULATE_WORK
-uint64_t __attribute__ ((noinline)) simulateWork(uint64_t b)
+std::string convert_float(const std::string &json_str)
 {
-  uint64_t x = 1;
-  uint64_t a = 1664525;
-  for (long i = 0; i < 100000000; ++i)
-  {
-    x = (a * x + 1013904223ULL + b - 11ULL) % 4294967296ULL;
-  }
-  return x;
-};
-#endif
+  static boost::regex re("\\\"([0-9]+\\.{0,1}[0-9]*)\\\"");
+  return  boost::regex_replace(json_str, re, "$1", boost::match_default);
+}
+
+std::string convert_bool(const std::string &json_str)
+{
+  static boost::regex re("\\\"(true|false)\\\"");
+  return  boost::regex_replace(json_str, re, "$1");
+}
 
 void HttpWorker::processRequest(http::request<http::string_body> const &req)
 {
@@ -125,13 +125,29 @@ void HttpWorker::processRequest(http::request<http::string_body> const &req)
        << req.target();
     (*mLogCallback)(ss.str());
   }
-  if (req.method() == http::verb::get && uri.path() == "/factor" && uri.query().find("number") != uri.query().end())
+  if (req.method() == http::verb::post && uri.path() == "/factor")
   {
-    std::string number_str = uri.query().at("number");
+    pt::ptree request;
+    std::stringstream iss;
+    iss << req.body();
+    try
+    {
+      pt::read_json(iss, request);
+    }
+    catch (pt::ptree_error e)
+    {
+      sendBadResponse(http::status::bad_request, e.what());
+      return;
+    }
+    if (request.find("number") == request.not_found())
+    {
+      sendBadResponse(http::status::bad_request, "field \"number\" is missing");
+      return;
+    }
     bigint x{0};
     try
     {
-      x.assign(number_str);
+      x.assign(request.get<std::string>("number"));
     }
     catch (...)
     {
@@ -142,32 +158,33 @@ void HttpWorker::processRequest(http::request<http::string_body> const &req)
     std::vector<bigint> factors = number_theory::prime<bigint>::factors(x);
     auto t1 = chrono::high_resolution_clock::now();
     auto dt = chrono::duration_cast<std::chrono::duration<double>>(t1 - t0);
-    std::sort(factors.begin(), factors.end());
     pt::ptree factors_child;
     for (auto const &f : factors)
     {
       pt::ptree child;
-      child.put<std::string>("", f.convert_to<std::string>());
+      child.put("", f);
       factors_child.push_back(std::make_pair("", child));
     }
     pt::ptree response;
-    response.put<std::string>("number", x.convert_to<std::string>());
+    response.put("number", x.convert_to<std::string>());
     if (factors.empty())
     {
-      response.put<std::string>("factors", "[factors]");
+      response.put("factors", "[factors]");
     }
     else
     {
       response.add_child("factors", factors_child);
     }
-    response.put<std::string>("elapsed_msecs", "[elapsed_msecs]");
-    response.put<std::string>("isprime", "[isprime]");
+    response.put("elapsed_msecs", 1e3 * dt.count());
+    response.put("isprime", factors.empty());
     std::ostringstream ss;
-    pt::write_json(ss, response, false);
+    pt::write_json(ss, response, true);
     std::string responseStr = ss.str();
-    boost::replace_all<std::string>(responseStr, std::string("\"[isprime]\""), factors.empty() ? "true" : "false");
-    boost::replace_all<std::string>(responseStr, std::string("\"[elapsed_msecs]\""), std::to_string(1e3 * dt.count()));
-    boost::replace_all<std::string>(responseStr, std::string("\"[factors]\""), "[]");
+    responseStr = convert_bool(responseStr);
+    responseStr = convert_float(responseStr);
+    //boost::replace_all(responseStr, std::string("\"[isprime]\""), factors.empty() ? "true" : "false");
+    //boost::replace_all(responseStr, std::string("\"[elapsed_msecs]\""), std::to_string(1e3 * dt.count()));
+    boost::replace_all(responseStr, std::string("\"[factors]\""), "[]");
     sendResponse(responseStr, "application/json");
   }
   else if (req.method() == http::verb::post && uri.path() == "/prime")
@@ -175,14 +192,17 @@ void HttpWorker::processRequest(http::request<http::string_body> const &req)
     pt::ptree request;
     std::stringstream iss;
     iss << req.body();
-    try {
+    try
+    {
       pt::read_json(iss, request);
     }
-    catch (pt::ptree_error e) {
+    catch (pt::ptree_error e)
+    {
       sendBadResponse(http::status::bad_request, e.what());
       return;
     }
-    if (request.find("number") == request.not_found()) {
+    if (request.find("number") == request.not_found())
+    {
       sendBadResponse(http::status::bad_request, "field \"number\" is missing");
       return;
     }
@@ -201,14 +221,24 @@ void HttpWorker::processRequest(http::request<http::string_body> const &req)
     auto t1 = chrono::high_resolution_clock::now();
     auto dt = chrono::duration_cast<std::chrono::duration<double>>(t1 - t0);
     pt::ptree response;
-    response.put<std::string>("elapsed_msecs", "[elapsed_msecs]");
-    response.put<std::string>("isprime", "[isprime]");
-    response.put<std::string>("number", x.convert_to<std::string>());
+#ifndef WITH_REGEX_REPLACE
+    response.put("elapsed_msecs", "[elapsed_msecs]");
+    response.put("isprime", "[isprime]");
+#else
+    response.put("elapsed_msecs",1e3 * dt.count());
+    response.put("isprime", isprime);
+#endif
+    response.put("number", x.convert_to<std::string>());
     std::ostringstream ss;
-    pt::write_json(ss, response, false);
+    pt::write_json(ss, response, true);
     std::string responseStr = ss.str();
-    boost::replace_all<std::string>(responseStr, std::string("\"[elapsed_msecs]\""), std::to_string(1e3 * dt.count()));
-    boost::replace_all<std::string>(responseStr, std::string("\"[isprime]\""), isprime ? "true" : "false");
+#ifndef WITH_REGEX_REPLACE
+    boost::replace_all(responseStr, "\"[elapsed_msecs]\"", std::to_string(1e3 * dt.count()));
+    boost::replace_all(responseStr, "\"[isprime]\"", isprime ? "true" : "false");
+#else
+    responseStr = convert_bool(responseStr);
+    responseStr = convert_float(responseStr);
+#endif
     sendResponse(responseStr, "application/json");
   }
   else if (req.method() == http::verb::get && uri.path() == "/prime" && uri.query().find("number") != uri.query().end())
