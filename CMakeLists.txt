@@ -7,11 +7,15 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG -Wno-deprecated")
 project(micro-webservice)
 
 set(BOOST_ROOT $ENV{BOOST_ROOT})
-find_package(Boost 1.71.0 REQUIRED)
+find_package(Boost 1.71.0 REQUIRED COMPONENTS regex)
 message(STATUS "Boost version: ${Boost_VERSION}")
 message(STATUS "Boost include dirs: ${Boost_INCLUDE_DIRS}")
 message(STATUS "Boost lib dirs: ${Boost_LIBRARY_DIRS}")
 message(STATUS "Boost libs: ${Boost_LIBRARIES}")
+
+if (${Boost_VERSION} VERSION_LESS "1.81.0")
+  add_definitions(-DUSE_STRINGVIEW_TOSTRING)
+endif()
 
 # GMP
 find_path(GMP_C_INCLUDES
@@ -35,10 +39,6 @@ add_executable(micro-webservice
   uri.cpp
 )
 set_target_properties(micro-webservice PROPERTIES LINK_FLAGS_RELEASE "-dead_strip")
-
-if (${Boost_VERSION} VERSION_LESS "1.81.0")
-	add_compile_options(-DUSE_STRINGVIEW_TOSTRING)
-endif()
 
 if(UNIX)
   set(CMAKE_CXX_FLAGS "-std=c++17 -pthread")
