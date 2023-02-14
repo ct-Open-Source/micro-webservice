@@ -182,8 +182,6 @@ void HttpWorker::processRequest(http::request<http::string_body> const &req)
     std::string responseStr = ss.str();
     responseStr = convert_bool(responseStr);
     responseStr = convert_float(responseStr);
-    //boost::replace_all(responseStr, std::string("\"[isprime]\""), factors.empty() ? "true" : "false");
-    //boost::replace_all(responseStr, std::string("\"[elapsed_msecs]\""), std::to_string(1e3 * dt.count()));
     boost::replace_all(responseStr, std::string("\"[factors]\""), "[]");
     sendResponse(responseStr, "application/json");
   }
