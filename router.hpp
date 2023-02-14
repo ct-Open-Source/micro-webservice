@@ -13,25 +13,21 @@ namespace warp {
 
     struct path_method
     {
-        path path;
+        warp::path path;
         boost::beast::http::verb verb;
     };
 
-    bool operator==(const path_method& lhs, const path_method& rhs)
-    {
-        return lhs.path == rhs.path && lhs.verb == rhs.verb;
-    }
-
+    bool operator==(const path_method& lhs, const path_method& rhs);
 }
 
 namespace std {
     template<>
-    struct std::hash<warp::path_method>
+    struct hash<warp::path_method>
     {
-        std::size_t operator()(const warp::path_method & k) const noexcept
+        size_t operator()(const warp::path_method & k) const noexcept
         {
-            std::size_t h1 = std::hash<std::string>{}(k.path);
-            std::size_t h2 = std::hash<int>{}(static_cast<int>(k.verb));
+            size_t h1 = hash<string>{}(k.path);
+            size_t h2 = hash<int>{}(static_cast<int>(k.verb));
             return h1 ^ (h2 << 1);
         }
     };

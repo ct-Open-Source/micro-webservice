@@ -37,6 +37,7 @@ add_executable(micro-webservice
   server.cpp
   httpworker.cpp
   handlers.cpp
+  router.cpp
   uri.cpp
 )
 set_target_properties(micro-webservice PROPERTIES LINK_FLAGS_RELEASE "-dead_strip")
