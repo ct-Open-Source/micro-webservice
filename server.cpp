@@ -23,9 +23,11 @@
 #include <thread>
 #include <mutex>
 
+#include "router.hpp"
 #include "helper.hpp"
 #include "server.hpp"
 #include "httpworker.hpp"
+#include "handlers.hpp"
 
 using tcp = boost::asio::ip::tcp;
 namespace net = boost::asio;
@@ -74,9 +76,14 @@ int main(int argc, const char *argv[])
               << msg << ' ' << (connId++) << std::endl;
   };
 
+  warp::router router;
+  router
+    .post("/prime", handle_prime)
+    .post("/factor", handle_factor);
+
   for (int i = 0; i < numWorkers; ++i)
   {
-    workers.emplace_back(acceptor, &logger);
+    workers.emplace_back(acceptor, router, &logger);
     workers.back().start();
   }
   

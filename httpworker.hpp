@@ -28,6 +28,8 @@
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/optional/optional.hpp>
 
+#include "router.hpp"
+
 namespace beast = boost::beast;
 namespace http = beast::http;
 
@@ -42,6 +44,7 @@ public:
   HttpWorker& operator=(HttpWorker const &) = delete;
   HttpWorker(
       tcp::acceptor &acceptor,
+      const warp::router &router,
       log_callback_t *logFn = nullptr);
   void start();
 
@@ -49,6 +52,7 @@ public:
 
 private:
   tcp::acceptor &mAcceptor;
+  const warp::router &mRouter;
   tcp::socket mSocket{mAcceptor.get_executor()};
   beast::flat_buffer mBuffer;
   std::optional<http::request_parser<http::string_body>> mParser;
@@ -61,7 +65,7 @@ private:
 
   void accept();
   void readRequest();
-  void processRequest(http::request<http::string_body> const &req);
+  void processRequest(const http::request<http::string_body> &req);
   void sendResponse(const std::string &body, const std::string &mimetype);
   void sendBadResponse(http::status status, const std::string &error);
   void checkTimeout();
