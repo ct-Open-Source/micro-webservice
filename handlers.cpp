@@ -41,7 +41,7 @@ namespace chrono = std::chrono;
 static std::string convert_float(const std::string &json_str)
 {
     static boost::regex re("\\\"([0-9]+\\.?[0-9]*)\\\"");
-    return boost::regex_replace(json_str, re, "$1", boost::match_default);
+    return boost::regex_replace(json_str, re, "$1");
 }
 
 
