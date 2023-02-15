@@ -160,5 +160,5 @@ warp::response handle_factor(const warp::request &req)
     responseStr = convert_bool(responseStr);
     responseStr = convert_float(responseStr);
     boost::replace_all(responseStr, std::string("\"[factors]\""), "[]");
-    return warp::response{http::status::ok, responseStr, "application/json"};
+    return warp::response{http::status::ok, responseStr};
 }
