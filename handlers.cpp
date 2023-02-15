@@ -37,8 +37,6 @@ namespace beast = boost::beast;
 namespace http = beast::http;
 namespace chrono = std::chrono;
 
-typedef boost::multiprecision::mpz_int bigint;
-
 
 static std::string convert_float(const std::string &json_str)
 {

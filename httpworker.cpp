@@ -23,7 +23,6 @@
 #include "server.hpp"
 #include "httpworker.hpp"
 #include "uri.hpp"
-#include "number_theory.hpp"
 
 namespace beast = boost::beast;
 namespace http = beast::http;
