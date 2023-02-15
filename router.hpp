@@ -57,7 +57,7 @@ namespace warp {
     {
         http::status status;
         std::string body;
-        std::string mime_type;
+        std::string mime_type = "application/json";
 
         response() = delete;
     };

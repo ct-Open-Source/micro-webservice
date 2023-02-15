@@ -63,11 +63,11 @@ warp::response handle_prime(const warp::request &req)
     }
     catch (pt::ptree_error e)
     {
-        return warp::response{http::status::bad_request, e.what(), "text/plain"};
+        return warp::response{http::status::bad_request, "{\"error\": \"" + std::string(e.what()) + "\""};
     }
     if (request.find("number") == request.not_found())
     {
-        return warp::response{http::status::bad_request, "field \"number\" is missing", "text/plain"};
+        return warp::response{http::status::bad_request, "{\"error\": \"field \\\"number\\\" is missing\"}"};
     }
     bigint x{0};
     try
@@ -76,7 +76,7 @@ warp::response handle_prime(const warp::request &req)
     }
     catch (...)
     {
-        return warp::response{http::status::bad_request, "field \"number\" must contain a positive integer number", "text/plain"};
+        return warp::response{http::status::bad_request, "{\"error\": \"field \\\"number\\\" must contain a positive integer number\"}"};
     }
     auto t0 = chrono::high_resolution_clock::now();
     bool isprime = primality::is_prime(x) != primality::composite;
@@ -101,7 +101,7 @@ warp::response handle_prime(const warp::request &req)
     responseStr = convert_bool(responseStr);
     responseStr = convert_float(responseStr);
 #endif
-    return warp::response{http::status::ok, responseStr, "application/json"};
+    return warp::response{http::status::ok, responseStr};
 }
 
 
@@ -116,11 +116,11 @@ warp::response handle_factor(const warp::request &req)
     }
     catch (pt::ptree_error e)
     {
-        return warp::response{http::status::bad_request, e.what(), "text/plain"};
+        return warp::response{http::status::bad_request, "{\"error\": \"" + std::string(e.what()) + "\""};
     }
     if (request.find("number") == request.not_found())
     {
-        return warp::response{http::status::bad_request, "field \"number\" is missing", "text/plain"};
+        return warp::response{http::status::bad_request, "{\"error\": \"field \\\"number\\\" is missing\"}"};
     }
     bigint x{0};
     try
@@ -129,7 +129,7 @@ warp::response handle_factor(const warp::request &req)
     }
     catch (...)
     {
-        return warp::response{http::status::bad_request, "field \"number\" must contain a positive integer number", "text/plain"};
+        return warp::response{http::status::bad_request, "{\"error\": \"field \\\"number\\\" must contain a positive integer number\"}"};
     }
     auto t0 = chrono::high_resolution_clock::now();
     std::vector<bigint> factors = primality::factors(x);

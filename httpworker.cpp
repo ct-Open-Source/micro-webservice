@@ -110,39 +110,14 @@ void HttpWorker::processRequest(const http::request<http::string_body> &req)
   }
   else
   {
-    sendBadResponse(response.status, response.body);
+    sendBadResponse(response.status, response.body, response.mime_type);
   }
 }
 
-void HttpWorker::sendResponse(const std::string &body, const std::string &mimetype)
+void HttpWorker::send()
 {
-  mResponse.emplace();
-  mResponse->result(http::status::ok);
   mResponse->set(http::field::server, std::string("Micro server ") + SERVER_VERSION);
-  mResponse->set(http::field::content_type, mimetype);
   mResponse->set(http::field::access_control_allow_origin, "*");
-  mResponse->body() = body;
-  mResponse->prepare_payload();
-  mSerializer.emplace(*mResponse);
-  http::async_write(
-      mSocket,
-      *mSerializer,
-      [this](boost::beast::error_code ec, std::size_t)
-      {
-        mSocket.shutdown(tcp::socket::shutdown_send, ec);
-        mSerializer.reset();
-        mResponse.reset();
-        accept();
-      });
-}
-
-void HttpWorker::sendBadResponse(http::status status, const std::string &error)
-{
-  mResponse.emplace();
-  mResponse->result(status);
-  mResponse->set(http::field::server, std::string("Micro server ") + SERVER_VERSION);
-  mResponse->set(http::field::content_type, "text/plain");
-  mResponse->body() = error;
   mResponse->prepare_payload();
   mSerializer.emplace(*mResponse);
   http::async_write(
@@ -155,6 +130,24 @@ void HttpWorker::sendBadResponse(http::status status, const std::string &error)
         mResponse.reset();
         accept();
       });
+}
+
+void HttpWorker::sendResponse(const std::string &body, const std::string &mimetype)
+{
+  mResponse.emplace();
+  mResponse->result(http::status::ok);
+  mResponse->set(http::field::content_type, mimetype);
+  mResponse->body() = body;
+  send();
+}
+
+void HttpWorker::sendBadResponse(http::status status, const std::string &error, const std::string &mimetype)
+{
+  mResponse.emplace();
+  mResponse->result(status);
+  mResponse->set(http::field::content_type, mimetype);
+  mResponse->body() = error;
+  send();
 }
 
 void HttpWorker::checkTimeout()

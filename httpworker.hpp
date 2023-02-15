@@ -66,8 +66,9 @@ private:
   void accept();
   void readRequest();
   void processRequest(const http::request<http::string_body> &req);
+  void send();
   void sendResponse(const std::string &body, const std::string &mimetype);
-  void sendBadResponse(http::status status, const std::string &error);
+  void sendBadResponse(http::status status, const std::string &error, const std::string &mimetype);
   void checkTimeout();
 };
 
