@@ -81,7 +81,7 @@ warp::response handle_prime(const warp::request &req)
         return warp::response{http::status::bad_request, "field \"number\" must contain a positive integer number", "text/plain"};
     }
     auto t0 = chrono::high_resolution_clock::now();
-    bool isprime = primality::is_prime(x, 5);
+    bool isprime = primality::is_prime(x);
     auto t1 = chrono::high_resolution_clock::now();
     auto dt = chrono::duration_cast<std::chrono::duration<double>>(t1 - t0);
     pt::ptree response;
