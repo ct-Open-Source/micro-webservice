@@ -58,6 +58,8 @@ namespace warp {
         http::status status;
         std::string body;
         std::string mime_type;
+
+        response() = delete;
     };
 
     typedef http::request<http::string_body> request;
