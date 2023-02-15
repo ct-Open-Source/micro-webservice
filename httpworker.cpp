@@ -44,7 +44,7 @@ HttpWorker::HttpWorker(
 void HttpWorker::start()
 {
   accept();
-  // checkTimeout();
+  checkTimeout();
 }
 
 void HttpWorker::accept()
@@ -62,7 +62,7 @@ void HttpWorker::accept()
         }
         else
         {
-          mReqTimeout.expires_after(Timeout);
+          // mReqTimeout.expires_after(Timeout);
           readRequest();
         }
       });
