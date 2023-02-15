@@ -69,18 +69,18 @@ class primality
     }
 
 public:
-    enum _mr_result
+    enum _primality_result
     {
         prime,
         probably_prime,
         composite
     };
-    typedef enum _mr_result mr_result;
+    typedef enum _primality_result primality_result;
 
     static std::vector<bigint> factors(bigint x)
     {
         std::vector<bigint> result;
-        if (is_prime(x))
+        if (is_prime(x) != composite)
         {
             return result;
         }
@@ -125,7 +125,7 @@ public:
         return exp;
     }
 
-    static mr_result is_prime(bigint n, bool fast = true)
+    static primality_result is_prime(bigint n, bool fast = true)
     {
         if (n <= 1 || n == 4)
         {
@@ -136,7 +136,7 @@ public:
             return prime;
         }
         std::vector<bigint> A;
-        mr_result result = prime;
+        primality_result result = prime;
         if (n < 2047)
         {
             A = {2};
@@ -195,7 +195,7 @@ public:
         }
         else
         {
-            const long amax = 2 * static_cast<long>(sqr(double(log2(n)) / M_LN2));
+            const size_t amax = 2UL * std::min(2UL, static_cast<size_t>(sqr(double(log2(n)) / M_LN2)));
             if (fast)
             {
                 A = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41};
@@ -225,7 +225,7 @@ public:
         {
             d /= 2;
         }
-        for (const bigint a : A)
+        for (const bigint &a : A)
         {
             if (mr_prime(d, n, a) == false)
             {
