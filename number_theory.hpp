@@ -131,7 +131,7 @@ public:
         {
             return composite;
         }
-        if (n <= 3)
+        if (n <= 5)
         {
             return prime;
         }
@@ -212,8 +212,8 @@ public:
             }
             else
             {
-                A.reserve(amax);
-                for (bigint a = 2; a < amax; ++a)
+                A.reserve(amax-1);
+                for (bigint a = 2; a <= amax; ++a)
                 {
                     A.push_back(a);
                 }
