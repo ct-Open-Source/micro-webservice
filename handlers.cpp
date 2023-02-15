@@ -61,7 +61,7 @@ warp::response handle_prime(const warp::request &req)
     {
         pt::read_json(iss, request);
     }
-    catch (pt::ptree_error e)
+    catch (pt::ptree_error const &e)
     {
         return warp::response{http::status::bad_request, "{\"error\": \"" + std::string(e.what()) + "\""};
     }
@@ -114,7 +114,7 @@ warp::response handle_factor(const warp::request &req)
     {
         pt::read_json(iss, request);
     }
-    catch (pt::ptree_error e)
+    catch (pt::ptree_error const &e)
     {
         return warp::response{http::status::bad_request, "{\"error\": \"" + std::string(e.what()) + "\""};
     }
