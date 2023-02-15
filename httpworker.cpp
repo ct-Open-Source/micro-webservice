@@ -41,8 +41,6 @@ namespace net = boost::asio;
 namespace chrono = std::chrono;
 using tcp = boost::asio::ip::tcp;
 
-typedef boost::multiprecision::mpz_int bigint;
-
 HttpWorker::HttpWorker(
     tcp::acceptor &acceptor,
     log_callback_t *logCallback)
@@ -155,7 +153,7 @@ void HttpWorker::processRequest(http::request<http::string_body> const &req)
       return;
     }
     auto t0 = chrono::high_resolution_clock::now();
-    std::vector<bigint> factors = number_theory::prime<bigint>::factors(x);
+    std::vector<bigint> factors = primality::factors(x);
     auto t1 = chrono::high_resolution_clock::now();
     auto dt = chrono::duration_cast<std::chrono::duration<double>>(t1 - t0);
     pt::ptree factors_child;
@@ -215,7 +213,7 @@ void HttpWorker::processRequest(http::request<http::string_body> const &req)
       return;
     }
     auto t0 = chrono::high_resolution_clock::now();
-    bool isprime = number_theory::prime<bigint>::is_prime(x, 5);
+    bool isprime = primality::is_prime(x) != primality::mr_result::composite;
     auto t1 = chrono::high_resolution_clock::now();
     auto dt = chrono::duration_cast<std::chrono::duration<double>>(t1 - t0);
     pt::ptree response;
@@ -253,7 +251,7 @@ void HttpWorker::processRequest(http::request<http::string_body> const &req)
       return;
     }
     auto t0 = chrono::high_resolution_clock::now();
-    bool isprime = number_theory::prime<bigint>::is_prime(x, 5);
+    bool isprime = primality::is_prime(x) != primality::mr_result::composite;
     auto t1 = chrono::high_resolution_clock::now();
     auto dt = chrono::duration_cast<std::chrono::duration<double>>(t1 - t0);
     pt::ptree response;
