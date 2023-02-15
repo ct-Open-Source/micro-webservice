@@ -113,7 +113,7 @@ namespace warp {
             {
                 return handlers.at(pm)(req);
             }
-            return response();
+            return warp::response{http::status::not_found, path + " not found", "text/plain"};
         }
     };
 
