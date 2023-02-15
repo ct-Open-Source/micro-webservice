@@ -23,7 +23,6 @@
 
 #include <boost/random.hpp>
 #include <boost/multiprecision/gmp.hpp>
-#include <gmp.h>
 
 typedef boost::multiprecision::mpz_int bigint;
 
