@@ -4,10 +4,10 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g3 -ggdb -DDEBUG -Wall -Wextra -Wconversion -Wreorder -Wuninitialized -Wtype-limits -Wno-pragmas")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG -Wno-deprecated")
 
-project(micro-webservice)
+project(prime-webservice)
 
 set(BOOST_ROOT $ENV{BOOST_ROOT})
-find_package(Boost 1.71.0 REQUIRED COMPONENTS regex)
+find_package(Boost 1.71.0 REQUIRED COMPONENTS regex url)
 message(STATUS "Boost version: ${Boost_VERSION}")
 message(STATUS "Boost include dirs: ${Boost_INCLUDE_DIRS}")
 message(STATUS "Boost lib dirs: ${Boost_LIBRARY_DIRS}")
@@ -33,14 +33,13 @@ message(STATUS "GMP lib dir: ${GMP_LIB_DIR}")
 include_directories(${GMP_C_INCLUDES})
 link_directories(${GMP_LIB_DIR})
 
-add_executable(micro-webservice 
+add_executable(prime-webservice 
   server.cpp
   httpworker.cpp
   handlers.cpp
   router.cpp
-  uri.cpp
 )
-set_target_properties(micro-webservice PROPERTIES LINK_FLAGS_RELEASE "-dead_strip")
+set_target_properties(prime-webservice PROPERTIES LINK_FLAGS_RELEASE "-dead_strip")
 
 if(UNIX)
   set(CMAKE_CXX_FLAGS "-std=c++17 -pthread")
@@ -51,21 +50,21 @@ else()
   set(PLATFORM_DEPENDENT_LIBRARIES, "")
 endif()
 
-add_custom_command(TARGET micro-webservice 
+add_custom_command(TARGET prime-webservice 
   POST_BUILD
-  COMMAND strip micro-webservice)
+  COMMAND strip prime-webservice)
 
-target_include_directories(micro-webservice
+target_include_directories(prime-webservice
 	PRIVATE ${PROJECT_INCLUDE_DIRS}
 	PUBLIC ${Boost_INCLUDE_DIRS})
 
-target_link_libraries(micro-webservice
+target_link_libraries(prime-webservice
 	${Boost_LIBRARIES}
   gmp
 )
 
-add_custom_command(TARGET micro-webservice
+add_custom_command(TARGET prime-webservice
   POST_BUILD
-  COMMAND strip micro-webservice)
+  COMMAND strip prime-webservice)
 
-install(TARGETS micro-webservice RUNTIME DESTINATION bin)
+install(TARGETS prime-webservice RUNTIME DESTINATION bin)
