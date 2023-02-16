@@ -61,6 +61,11 @@ void usage()
 int main(int argc, const char *argv[])
 {
   hello();
+  if (!(argc == 1 || argc == 5))
+  {
+    usage();
+    return EXIT_FAILURE;
+  }
 
   net::ip::address host = net::ip::make_address("127.0.0.1");
   uint16_t port = 31337U;
