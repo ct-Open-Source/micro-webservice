@@ -36,23 +36,24 @@ namespace pt = boost::property_tree;
 namespace beast = boost::beast;
 namespace http = beast::http;
 namespace chrono = std::chrono;
+namespace url = boost::urls;
 
 
-static std::string convert_float(const std::string &json_str)
+static std::string convert_float(std::string const &json_str)
 {
     static boost::regex re("\\\"([0-9]+\\.?[0-9]*)\\\"");
     return boost::regex_replace(json_str, re, "$1");
 }
 
 
-static std::string convert_bool(const std::string &json_str)
+static std::string convert_bool(std::string const &json_str)
 {
     static boost::regex re("\\\"(true|false)\\\"");
     return boost::regex_replace(json_str, re, "$1");
 }
 
 
-warp::response handle_prime(const warp::request &req)
+warp::response handle_prime(warp::request const &req)
 {
     pt::ptree request;
     std::stringstream iss;
@@ -78,8 +79,14 @@ warp::response handle_prime(const warp::request &req)
     {
         return warp::response{http::status::bad_request, "{\"error\": \"field \\\"number\\\" must contain a positive integer number\"}"};
     }
+    url::result<url::url_view> u = url::parse_origin_form(req.target());
+    if (u.has_error())
+    {
+        return warp::response{http::status::bad_request, "malformed target", "text/plain"};
+    }
+    bool fast = u->params().contains("fast");
     auto t0 = chrono::high_resolution_clock::now();
-    bool isprime = primality::is_prime(x) != primality::composite;
+    bool isprime = primality::is_prime(x, fast) != primality::composite;
     auto t1 = chrono::high_resolution_clock::now();
     auto dt = chrono::duration_cast<std::chrono::duration<double>>(t1 - t0);
     pt::ptree response;
@@ -90,6 +97,7 @@ warp::response handle_prime(const warp::request &req)
     response.put("elapsed_msecs", 1e3 * dt.count());
     response.put("isprime", isprime);
 #endif
+    response.put("algo", fast ? "near-deterministic" : "deterministic");
     response.put("number", x.convert_to<std::string>());
     std::ostringstream ss;
     pt::write_json(ss, response, true);

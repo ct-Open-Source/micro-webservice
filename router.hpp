@@ -18,12 +18,14 @@
 #ifndef __ROUTER_HPP__
 #define __ROUTER_HPP__
 
+#include <iostream>
 #include <string>
 #include <unordered_map>
 #include <functional>
 
 #include <boost/beast/http/verb.hpp>
 #include <boost/beast/http/string_body.hpp>
+#include <boost/url.hpp>
 
 namespace warp {
     typedef std::string path;
@@ -52,6 +54,7 @@ namespace std {
 
 namespace warp {
     namespace http = boost::beast::http;
+    namespace url = boost::urls;
 
     struct response
     {
@@ -106,14 +109,19 @@ namespace warp {
             return *this;
         }
 
-        response call(http::verb method, path path, const request &req) const
+        response call(request const &req) const
         {
-            const path_method pm{path, method};
+            url::result<url::url_view> target = url::parse_origin_form(req.target());
+            if (target.has_error())
+            {
+                return warp::response{http::status::bad_request, "invalid target", "text/plain"};
+            }
+            const path_method pm{target->path(), req.method()};
             if (handlers.find(pm) != handlers.end())
             {
                 return handlers.at(pm)(req);
             }
-            return warp::response{http::status::not_found, path + " not found", "text/plain"};
+            return warp::response{http::status::not_found, target->path() + " not found", "text/plain"};
         }
     };
 

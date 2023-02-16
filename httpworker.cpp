@@ -22,37 +22,36 @@
 
 #include "server.hpp"
 #include "httpworker.hpp"
-#include "uri.hpp"
 
 namespace beast = boost::beast;
 namespace http = beast::http;
 namespace net = boost::asio;
 using tcp = boost::asio::ip::tcp;
 
-HttpWorker::HttpWorker(
+http_worker::http_worker(
     tcp::acceptor &acceptor,
     const warp::router &router,
     log_callback_t *logCallback)
-    : mAcceptor(acceptor)
-    , mRouter(router)
-    , mLogCallback(logCallback)
+    : acceptor_(acceptor)
+    , router_(router)
+    , log_callback_(logCallback)
 {
   /* ... */
 }
 
-void HttpWorker::start()
+void http_worker::start()
 {
   accept();
-  checkTimeout();
+  check_timeout();
 }
 
-void HttpWorker::accept()
+void http_worker::accept()
 {
   beast::error_code ec;
-  mSocket.close(ec);
-  mBuffer.consume(mBuffer.size());
-  mAcceptor.async_accept(
-      mSocket,
+  socket_.close(ec);
+  buffer_.consume(buffer_.size());
+  acceptor_.async_accept(
+      socket_,
       [this](beast::error_code ec)
       {
         if (ec)
@@ -61,19 +60,19 @@ void HttpWorker::accept()
         }
         else
         {
-          // mReqTimeout.expires_after(Timeout);
-          readRequest();
+          // req_timeout_.expires_after(Timeout);
+          read_request();
         }
       });
 }
 
-void HttpWorker::readRequest()
+void http_worker::read_request()
 {
-  mParser.emplace();
+  parser_.emplace();
   http::async_read(
-      mSocket,
-      mBuffer,
-      *mParser,
+      socket_,
+      buffer_,
+      *parser_,
       [this](beast::error_code ec, std::size_t)
       {
         if (ec)
@@ -82,84 +81,78 @@ void HttpWorker::readRequest()
         }
         else
         {
-          processRequest(mParser->get());
+          process_request(parser_->get());
         }
       });
 }
 
-void HttpWorker::processRequest(const http::request<http::string_body> &req)
+void http_worker::process_request(const http::request<http::string_body> &req)
 {
-  URI uri;
-#ifdef USE_STRINGVIEW_TOSTRING
-  uri.parseTarget(req.target().to_string());
-#else
-  uri.parseTarget(req.target());
-#endif
-  if (mLogCallback != nullptr)
+  if (log_callback_ != nullptr)
   {
     std::ostringstream ss;
-    ss << mSocket.remote_endpoint().address().to_string() << ' '
+    ss << socket_.remote_endpoint().address().to_string() << ' '
        << req.method() << ' '
        << req.target();
-    (*mLogCallback)(ss.str());
+    (*log_callback_)(ss.str());
   }
-  warp::response response = mRouter.call(req.method(), uri.path(), req);
+  warp::response response = router_.call(req);
   if (response.status == http::status::ok)
   {
-    sendResponse(response.body, response.mime_type);
+    send_response(response.body, response.mime_type);
   }
   else
   {
-    sendBadResponse(response.status, response.body, response.mime_type);
+    send_error_response(response.status, response.body, response.mime_type);
   }
 }
 
-void HttpWorker::send()
+void http_worker::send()
 {
-  mResponse->set(http::field::server, std::string("Micro server ") + SERVER_VERSION);
-  mResponse->set(http::field::access_control_allow_origin, "*");
-  mResponse->prepare_payload();
-  mSerializer.emplace(*mResponse);
+  response_->set(http::field::server, std::string("Micro server ") + SERVER_VERSION);
+  response_->set(http::field::access_control_allow_origin, "*");
+  response_->prepare_payload();
+  serializer_.emplace(*response_);
   http::async_write(
-      mSocket,
-      *mSerializer,
+      socket_,
+      *serializer_,
       [this](beast::error_code ec, std::size_t)
       {
-        mSocket.shutdown(tcp::socket::shutdown_send, ec);
-        mSerializer.reset();
-        mResponse.reset();
+        socket_.shutdown(tcp::socket::shutdown_send, ec);
+        serializer_.reset();
+        response_.reset();
         accept();
       });
 }
 
-void HttpWorker::sendResponse(const std::string &body, const std::string &mimetype)
+void http_worker::send_response(const std::string &body, const std::string &mimetype)
 {
-  mResponse.emplace();
-  mResponse->result(http::status::ok);
-  mResponse->set(http::field::content_type, mimetype);
-  mResponse->body() = body;
+  response_.emplace();
+  response_->result(http::status::ok);
+  response_->set(http::field::content_type, mimetype);
+  response_->body() = body;
   send();
 }
 
-void HttpWorker::sendBadResponse(http::status status, const std::string &error, const std::string &mimetype)
+void http_worker::send_error_response(http::status status, const std::string &error, const std::string &mimetype)
 {
-  mResponse.emplace();
-  mResponse->result(status);
-  mResponse->set(http::field::content_type, mimetype);
-  mResponse->body() = error;
+  response_.emplace();
+  response_->result(status);
+  response_->set(http::field::content_type, mimetype);
+  response_->body() = error;
   send();
 }
 
-void HttpWorker::checkTimeout()
+void http_worker::check_timeout()
 {
-  if (mReqTimeout.expiry() <= std::chrono::steady_clock::now())
+  if (req_timeout_.expiry() <= std::chrono::steady_clock::now())
   {
-    mSocket.close();
-    mReqTimeout.expires_at(std::chrono::steady_clock::time_point::max());
+    socket_.close();
+    req_timeout_.expires_at(std::chrono::steady_clock::time_point::max());
   }
-  mReqTimeout.async_wait(
+  req_timeout_.async_wait(
       [this](beast::error_code)
       {
-        checkTimeout();
+        check_timeout();
       });
 }

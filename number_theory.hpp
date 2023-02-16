@@ -194,7 +194,7 @@ public:
         }
         else
         {
-            const size_t amax = 2UL * std::min(2UL, static_cast<size_t>(sqr(double(log2(n)) / M_LN2)));
+            const size_t amax = 2UL * std::max(2UL, static_cast<size_t>(sqr(double(log2(n)) / M_LN2)));
             if (fast)
             {
                 A = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41};
@@ -211,7 +211,7 @@ public:
             }
             else
             {
-                A.reserve(amax-1);
+                A.reserve(amax - 1);
                 for (bigint a = 2; a <= amax; ++a)
                 {
                     A.push_back(a);

@@ -15,8 +15,8 @@
  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef __helper_hpp__
-#define __helper_hpp__
+#ifndef __HELPER_HPP__
+#define __HELPER_HPP__
 
 #include <iostream>
 #include <iomanip>
@@ -39,4 +39,4 @@ std::ostream &operator<<(std::ostream &stream, const std::chrono::time_point<Clo
 #endif
 }
 
-#endif // __helper_hpp__
+#endif // __HELPER_HPP__

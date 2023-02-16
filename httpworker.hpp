@@ -15,8 +15,8 @@
  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef __httpworker_hpp__
-#define __httpworker_hpp__
+#ifndef __HTTP_WORKER_HPP__
+#define __HTTP_WORKER_HPP__
 
 #include <string>
 #include <chrono>
@@ -33,16 +33,16 @@
 namespace beast = boost::beast;
 namespace http = beast::http;
 
-class HttpWorker
+class http_worker
 {
   using tcp = boost::asio::ip::tcp;
 
 public:
   typedef std::function<void(const std::string&)> log_callback_t;
 
-  HttpWorker(HttpWorker const &) = delete;
-  HttpWorker& operator=(HttpWorker const &) = delete;
-  HttpWorker(
+  http_worker(http_worker const &) = delete;
+  http_worker& operator=(http_worker const &) = delete;
+  http_worker(
       tcp::acceptor &acceptor,
       const warp::router &router,
       log_callback_t *logFn = nullptr);
@@ -51,25 +51,25 @@ public:
   static constexpr std::chrono::seconds Timeout{60};
 
 private:
-  tcp::acceptor &mAcceptor;
-  const warp::router &mRouter;
-  tcp::socket mSocket{mAcceptor.get_executor()};
-  beast::flat_buffer mBuffer;
-  std::optional<http::request_parser<http::string_body>> mParser;
-  boost::asio::basic_waitable_timer<std::chrono::steady_clock> mReqTimeout{
-    mAcceptor.get_executor(),
+  tcp::acceptor &acceptor_;
+  const warp::router &router_;
+  tcp::socket socket_{acceptor_.get_executor()};
+  beast::flat_buffer buffer_;
+  std::optional<http::request_parser<http::string_body>> parser_;
+  boost::asio::basic_waitable_timer<std::chrono::steady_clock> req_timeout_{
+    acceptor_.get_executor(),
     (std::chrono::steady_clock::time_point::max)()};
-  std::optional<http::response<http::string_body>> mResponse;
-  std::optional<http::response_serializer<http::string_body>> mSerializer;
-  log_callback_t *mLogCallback;
+  std::optional<http::response<http::string_body>> response_;
+  std::optional<http::response_serializer<http::string_body>> serializer_;
+  log_callback_t *log_callback_;
 
   void accept();
-  void readRequest();
-  void processRequest(const http::request<http::string_body> &req);
+  void read_request();
+  void process_request(const http::request<http::string_body> &req);
   void send();
-  void sendResponse(const std::string &body, const std::string &mimetype);
-  void sendBadResponse(http::status status, const std::string &error, const std::string &mimetype);
-  void checkTimeout();
+  void send_response(const std::string &body, const std::string &mimetype);
+  void send_error_response(http::status status, const std::string &error, const std::string &mimetype);
+  void check_timeout();
 };
 
-#endif // __httpworker_hpp__
+#endif // __HTTP_WORKER_HPP__
