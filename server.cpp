@@ -104,7 +104,7 @@ int main(int argc, const char *argv[])
     .post("/prime", handle_prime)
     .post("/factor", handle_factor);
 
-  for (auto i = 0; i < num_workers; ++i)
+  for (auto i = 0U; i < num_workers; ++i)
   {
     workers.emplace_back(acceptor, router, &logger);
     workers.back().start();
@@ -112,7 +112,7 @@ int main(int argc, const char *argv[])
   
   std::vector<std::thread> threads;
   threads.reserve(num_threads - 1);
-  for (auto i = 0; i < num_threads - 1; ++i)
+  for (auto i = 0U; i < num_threads - 1; ++i)
   {
     threads.emplace_back(
         [&ioc]
