@@ -7,7 +7,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG -Wno-deprecated")
 project(prime-webservice)
 
 set(BOOST_ROOT $ENV{BOOST_ROOT})
-find_package(Boost 1.71.0 REQUIRED COMPONENTS regex url)
+find_package(Boost 1.81.0 REQUIRED COMPONENTS regex url)
 message(STATUS "Boost version: ${Boost_VERSION}")
 message(STATUS "Boost include dirs: ${Boost_INCLUDE_DIRS}")
 message(STATUS "Boost lib dirs: ${Boost_LIBRARY_DIRS}")
