@@ -20,7 +20,7 @@
 
 #include "router.hpp"
 
-extern warp::response handle_factor(const warp::request &);
-extern warp::response handle_prime(const warp::request &);
+extern trip::response handle_factor(const trip::request &);
+extern trip::response handle_prime(const trip::request &);
 
 #endif

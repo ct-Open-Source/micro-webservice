@@ -44,7 +44,7 @@ public:
   http_worker& operator=(http_worker const &) = delete;
   http_worker(
       tcp::acceptor &acceptor,
-      const warp::router &router,
+      const trip::router &router,
       log_callback_t *logFn = nullptr);
   void start();
 
@@ -52,7 +52,7 @@ public:
 
 private:
   tcp::acceptor &acceptor_;
-  const warp::router &router_;
+  const trip::router &router_;
   tcp::socket socket_{acceptor_.get_executor()};
   beast::flat_buffer buffer_;
   std::optional<http::request_parser<http::string_body>> parser_;

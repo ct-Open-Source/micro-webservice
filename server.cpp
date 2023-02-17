@@ -99,7 +99,7 @@ int main(int argc, const char *argv[])
               << msg << std::endl;
   };
 
-  warp::router router;
+  trip::router router;
   router
     .post("/prime", handle_prime)
     .post("/factor", handle_factor);

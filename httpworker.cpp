@@ -30,7 +30,7 @@ using tcp = boost::asio::ip::tcp;
 
 http_worker::http_worker(
     tcp::acceptor &acceptor,
-    const warp::router &router,
+    const trip::router &router,
     log_callback_t *logCallback)
     : acceptor_(acceptor)
     , router_(router)
@@ -96,7 +96,7 @@ void http_worker::process_request(const http::request<http::string_body> &req)
        << req.target();
     (*log_callback_)(ss.str());
   }
-  warp::response response = router_.call(req);
+  trip::response response = router_.call(req);
   if (response.status == http::status::ok)
   {
     send_response(response.body, response.mime_type);

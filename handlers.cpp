@@ -53,7 +53,7 @@ static std::string convert_bool(std::string const &json_str)
 }
 
 
-warp::response handle_prime(warp::request const &req)
+trip::response handle_prime(trip::request const &req)
 {
     pt::ptree request;
     std::stringstream iss;
@@ -64,11 +64,11 @@ warp::response handle_prime(warp::request const &req)
     }
     catch (pt::ptree_error const &e)
     {
-        return warp::response{http::status::bad_request, "{\"error\": \"" + std::string(e.what()) + "\""};
+        return trip::response{http::status::bad_request, "{\"error\": \"" + std::string(e.what()) + "\""};
     }
     if (request.find("number") == request.not_found())
     {
-        return warp::response{http::status::bad_request, "{\"error\": \"field \\\"number\\\" is missing\"}"};
+        return trip::response{http::status::bad_request, "{\"error\": \"field \\\"number\\\" is missing\"}"};
     }
     bigint x{0};
     try
@@ -77,12 +77,12 @@ warp::response handle_prime(warp::request const &req)
     }
     catch (...)
     {
-        return warp::response{http::status::bad_request, "{\"error\": \"field \\\"number\\\" must contain a positive integer number\"}"};
+        return trip::response{http::status::bad_request, "{\"error\": \"field \\\"number\\\" must contain a positive integer number\"}"};
     }
     url::result<url::url_view> u = url::parse_origin_form(req.target());
     if (u.has_error())
     {
-        return warp::response{http::status::bad_request, "malformed target", "text/plain"};
+        return trip::response{http::status::bad_request, "malformed target", "text/plain"};
     }
     bool fast = u->params().contains("fast");
     auto t0 = chrono::high_resolution_clock::now();
@@ -109,11 +109,11 @@ warp::response handle_prime(warp::request const &req)
     responseStr = convert_bool(responseStr);
     responseStr = convert_float(responseStr);
 #endif
-    return warp::response{http::status::ok, responseStr};
+    return trip::response{http::status::ok, responseStr};
 }
 
 
-warp::response handle_factor(const warp::request &req)
+trip::response handle_factor(const trip::request &req)
 {
     pt::ptree request;
     std::stringstream iss;
@@ -124,11 +124,11 @@ warp::response handle_factor(const warp::request &req)
     }
     catch (pt::ptree_error const &e)
     {
-        return warp::response{http::status::bad_request, "{\"error\": \"" + std::string(e.what()) + "\""};
+        return trip::response{http::status::bad_request, "{\"error\": \"" + std::string(e.what()) + "\""};
     }
     if (request.find("number") == request.not_found())
     {
-        return warp::response{http::status::bad_request, "{\"error\": \"field \\\"number\\\" is missing\"}"};
+        return trip::response{http::status::bad_request, "{\"error\": \"field \\\"number\\\" is missing\"}"};
     }
     bigint x{0};
     try
@@ -137,7 +137,7 @@ warp::response handle_factor(const warp::request &req)
     }
     catch (...)
     {
-        return warp::response{http::status::bad_request, "{\"error\": \"field \\\"number\\\" must contain a positive integer number\"}"};
+        return trip::response{http::status::bad_request, "{\"error\": \"field \\\"number\\\" must contain a positive integer number\"}"};
     }
     auto t0 = chrono::high_resolution_clock::now();
     std::vector<bigint> factors = primality::factors(x);
@@ -168,5 +168,5 @@ warp::response handle_factor(const warp::request &req)
     responseStr = convert_bool(responseStr);
     responseStr = convert_float(responseStr);
     boost::replace_all(responseStr, std::string("\"[factors]\""), "[]");
-    return warp::response{http::status::ok, responseStr};
+    return trip::response{http::status::ok, responseStr};
 }

@@ -17,7 +17,7 @@
 
 #include "router.hpp"
 
-namespace warp {
+namespace trip {
 
     bool operator==(const path_method& lhs, const path_method& rhs)
     {

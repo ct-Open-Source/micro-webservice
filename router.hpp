@@ -27,12 +27,12 @@
 #include <boost/beast/http/string_body.hpp>
 #include <boost/url.hpp>
 
-namespace warp {
+namespace trip {
     typedef std::string path;
 
     struct path_method
     {
-        warp::path path;
+        trip::path path;
         boost::beast::http::verb verb;
     };
 
@@ -41,9 +41,9 @@ namespace warp {
 
 namespace std {
     template<>
-    struct hash<warp::path_method>
+    struct hash<trip::path_method>
     {
-        size_t operator()(const warp::path_method & k) const noexcept
+        size_t operator()(const trip::path_method & k) const noexcept
         {
             size_t h1 = hash<string>{}(k.path);
             size_t h2 = hash<int>{}(static_cast<int>(k.verb));
@@ -52,7 +52,7 @@ namespace std {
     };
 }
 
-namespace warp {
+namespace trip {
     namespace http = boost::beast::http;
     namespace url = boost::urls;
 
@@ -114,14 +114,14 @@ namespace warp {
             url::result<url::url_view> target = url::parse_origin_form(req.target());
             if (target.has_error())
             {
-                return warp::response{http::status::bad_request, "invalid target", "text/plain"};
+                return trip::response{http::status::bad_request, "invalid target", "text/plain"};
             }
             const path_method pm{target->path(), req.method()};
             if (handlers.find(pm) != handlers.end())
             {
                 return handlers.at(pm)(req);
             }
-            return warp::response{http::status::not_found, target->path() + " not found", "text/plain"};
+            return trip::response{http::status::not_found, target->path() + " not found", "text/plain"};
         }
     };
 
