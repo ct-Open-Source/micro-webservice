@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g3 -ggdb -DDEBUG -Wall -Wextra -Wconversion -Wreorder -Wuninitialized -Wtype-limits -Wno-pragmas")
+set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g3 -ggdb -DDEBUG -pedantic -Wall -Wextra -Wconversion -Wreorder -Wuninitialized -Wtype-limits -Wno-pragmas")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG -Wno-deprecated")
 
 project(prime-webservice)
@@ -34,10 +34,10 @@ include_directories(${GMP_C_INCLUDES})
 link_directories(${GMP_LIB_DIR})
 
 add_executable(prime-webservice 
-  server.cpp
+  main.cpp
   httpworker.cpp
-  handlers.cpp
-  router.cpp
+  helper.cpp
+  trip/router.cpp
 )
 set_target_properties(prime-webservice PROPERTIES LINK_FLAGS_RELEASE "-dead_strip")
 

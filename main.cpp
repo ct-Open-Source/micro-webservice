@@ -20,17 +20,26 @@
 #include <memory>
 #include <sstream>
 #include <list>
+#include <vector>
 #include <thread>
 #include <mutex>
+#include <memory>
 
 #include <boost/lexical_cast.hpp>
 #include <boost/asio/signal_set.hpp>
 
-#include "router.hpp"
+#include "global.hpp"
 #include "helper.hpp"
-#include "server.hpp"
 #include "httpworker.hpp"
 #include "handlers.hpp"
+#include "trip/router.hpp"
+
+#ifndef NDEBUG
+const char *DEFAULT_HOST = "0.0.0.0";
+#else
+const char *DEFAULT_HOST = "127.0.0.1";
+#endif
+constexpr uint16_t DEFAULT_PORT = 31337U;
 
 using tcp = boost::asio::ip::tcp;
 namespace net = boost::asio;
@@ -52,7 +61,7 @@ void usage()
             << "or just:" << std::endl
             << "  prime-webservice" << std::endl
             << std::endl
-            << "to use the defaults: 127.0.0.1 31337 N N" << std::endl
+            << "to use the defaults: " << DEFAULT_HOST << " " << DEFAULT_PORT << " N N" << std::endl
             << "where N stands for the number of CPU cores ("
             << std::thread::hardware_concurrency() << ")." << std::endl
             << std::endl;
@@ -67,8 +76,8 @@ int main(int argc, const char *argv[])
     return EXIT_FAILURE;
   }
 
-  net::ip::address host = net::ip::make_address("127.0.0.1");
-  uint16_t port = 31337U;
+  net::ip::address host = net::ip::make_address(DEFAULT_HOST);
+  uint16_t port = DEFAULT_PORT;
   unsigned int num_workers = std::thread::hardware_concurrency();
   unsigned int num_threads = num_workers;
   if (argc == 5)
@@ -80,7 +89,7 @@ int main(int argc, const char *argv[])
       num_workers = std::max(1U, boost::lexical_cast<unsigned int>(argv[3]));
       num_threads = std::max(1U, boost::lexical_cast<unsigned int>(argv[4]));
     }
-    catch (boost::exception const& ec)
+    catch (boost::exception const&)
     {
       usage();
       return EXIT_FAILURE;
@@ -100,9 +109,13 @@ int main(int argc, const char *argv[])
   };
 
   trip::router router;
+  
   router
-    .post("/prime", handle_prime)
-    .post("/factor", handle_factor);
+    .post("/prime", handle_prime{})
+    .post("/factor", handle_factor{})
+    .get("/count", handle_count{-42})
+    .get("/ioc", handle_with_ioc{ioc})
+  ;
 
   for (auto i = 0U; i < num_workers; ++i)
   {

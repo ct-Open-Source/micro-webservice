@@ -23,61 +23,27 @@
 #include <unordered_map>
 #include <functional>
 
-#include <boost/beast/http/verb.hpp>
 #include <boost/beast/http/string_body.hpp>
 #include <boost/url.hpp>
 
-namespace trip {
-    typedef std::string path;
-
-    struct path_method
-    {
-        trip::path path;
-        boost::beast::http::verb verb;
-    };
-
-    bool operator==(const path_method& lhs, const path_method& rhs);
-}
-
-namespace std {
-    template<>
-    struct hash<trip::path_method>
-    {
-        size_t operator()(const trip::path_method & k) const noexcept
-        {
-            size_t h1 = hash<string>{}(k.path);
-            size_t h2 = hash<int>{}(static_cast<int>(k.verb));
-            return h1 ^ (h2 << 1);
-        }
-    };
-}
+#include "path.hpp"
+#include "response_request.hpp"
 
 namespace trip {
     namespace http = boost::beast::http;
     namespace url = boost::urls;
 
-    struct response
-    {
-        http::status status;
-        std::string body;
-        std::string mime_type = "application/json";
-
-        response() = delete;
-    };
-
-    typedef http::request<http::string_body> request;
-
     class router
     {
+        typedef std::function<response(const request &)> handler_t;
     private:
-        std::unordered_map<path_method, std::function<response(const request &)>> handlers;
+        std::unordered_map<path_method, handler_t> handlers;
 
     public:
         template<typename F, typename... Args>
-        router &head(path path, F handler, Args&&... args)
+        router &head(path path, F handler, Args... args)
         {
-            std::function<response(const request &)>
-            callback = [handler, args...](const request &req)
+            handler_t callback = [&handler, &args...](const request &req)
             {
                 return handler(req, args...);
             };
@@ -86,10 +52,9 @@ namespace trip {
         }
 
         template<typename F, typename... Args>
-        router &get(path path, F handler, Args&&... args)
+        router &get(path path, F handler, Args... args)
         {
-            std::function<response(const request &)>
-            callback = [handler, args...](const request &req)
+            handler_t callback = [&handler, &args...](const request &req)
             {
                 return handler(req, args...);
             };
@@ -98,10 +63,9 @@ namespace trip {
         }
 
         template<typename F, typename... Args>
-        router &post(path path, F handler, Args&&... args)
+        router &post(path path, F handler, Args... args)
         {
-            std::function<response(const request &)>
-            callback = [handler, args...](const request &req)
+            handler_t callback = [&handler, &args...](const request &req)
             {
                 return handler(req, args...);
             };

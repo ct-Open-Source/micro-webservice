@@ -15,9 +15,9 @@
  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef __server_hpp__
-#define __server_hpp__
+#ifndef __MAIN_HPP__
+#define __MAIN_HPP__
 
 #define SERVER_VERSION "v3"
 
-#endif // __server_hpp__
+#endif // __MAIN_HPP__

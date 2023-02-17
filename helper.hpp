@@ -39,4 +39,8 @@ std::ostream &operator<<(std::ostream &stream, const std::chrono::time_point<Clo
 #endif
 }
 
+extern std::string convert_float(std::string const &json_str);
+extern std::string convert_bool(std::string const &json_str);
+
+
 #endif // __HELPER_HPP__

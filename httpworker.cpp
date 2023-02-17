@@ -20,7 +20,7 @@
 
 #include <boost/asio/ip/tcp.hpp>
 
-#include "server.hpp"
+#include "global.hpp"
 #include "httpworker.hpp"
 
 namespace beast = boost::beast;

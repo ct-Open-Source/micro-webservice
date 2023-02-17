@@ -28,7 +28,7 @@
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/optional/optional.hpp>
 
-#include "router.hpp"
+#include "trip/router.hpp"
 
 namespace beast = boost::beast;
 namespace http = beast::http;
