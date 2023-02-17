@@ -40,36 +40,24 @@ namespace trip {
         std::unordered_map<path_method, handler_t> handlers;
 
     public:
-        template<typename F, typename... Args>
-        router &head(path path, F handler, Args... args)
+        template<typename F>
+        router &head(path path, F handler)
         {
-            handler_t callback = [&handler, &args...](const request &req)
-            {
-                return handler(req, args...);
-            };
-            handlers.emplace(path_method{path, http::verb::head}, callback);
+            handlers.emplace(path_method{path, http::verb::head}, handler);
             return *this;
         }
 
-        template<typename F, typename... Args>
-        router &get(path path, F handler, Args... args)
+        template<typename F>
+        router &get(path path, F handler)
         {
-            handler_t callback = [&handler, &args...](const request &req)
-            {
-                return handler(req, args...);
-            };
-            handlers.emplace(path_method{path, http::verb::get}, callback);
+            handlers.emplace(path_method{path, http::verb::get}, handler);
             return *this;
         }
 
-        template<typename F, typename... Args>
-        router &post(path path, F handler, Args... args)
+        template<typename F>
+        router &post(path path, F handler)
         {
-            handler_t callback = [&handler, &args...](const request &req)
-            {
-                return handler(req, args...);
-            };
-            handlers.emplace(path_method{path, http::verb::post}, callback);
+            handlers.emplace(path_method{path, http::verb::post}, handler);
             return *this;
         }
 
