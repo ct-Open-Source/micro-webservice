@@ -180,7 +180,7 @@ struct handle_count : trip::handler
     }
     trip::response operator()(trip::request const &)
     {
-        return trip::response{trip::status::accepted, std::to_string(counter_++)};
+        return trip::response{trip::status::ok, std::to_string(counter_++), "text/plain"};
     }
 
 private:
@@ -195,7 +195,7 @@ struct handle_with_ioc : trip::handler
     }
     trip::response operator()(trip::request const &)
     {
-        return trip::response{trip::status::accepted, ""};
+        return trip::response{trip::status::ok, "", "text/plain"};
     }
 private:
     boost::asio::io_context &ioc_;
