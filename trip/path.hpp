@@ -29,16 +29,19 @@ namespace trip
     {
         trip::path path;
         boost::beast::http::verb verb;
-    };
 
-    bool operator==(const path_method& lhs, const path_method& rhs);
+        bool operator==(path_method const &o) const
+        {
+            return path == o.path && verb == o.verb;
+        }
+    };
 }
 
 namespace std {
     template<>
     struct hash<trip::path_method>
     {
-        size_t operator()(const trip::path_method & k) const noexcept
+        size_t operator()(trip::path_method const &k) const noexcept
         {
             size_t h1 = hash<string>{}(k.path);
             size_t h2 = hash<int>{}(static_cast<int>(k.verb));

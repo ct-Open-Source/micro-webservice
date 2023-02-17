@@ -109,11 +109,10 @@ int main(int argc, const char *argv[])
   };
 
   trip::router router;
-  
   router
     .post("/prime", handle_prime{})
     .post("/factor", handle_factor{})
-    .get("/count", handle_count{-42})
+    .get("/countdown", handle_countdown{10})
     .get("/ioc", handle_with_ioc{ioc})
   ;
 

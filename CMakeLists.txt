@@ -37,7 +37,6 @@ add_executable(prime-webservice
   main.cpp
   httpworker.cpp
   helper.cpp
-  trip/router.cpp
 )
 set_target_properties(prime-webservice PROPERTIES LINK_FLAGS_RELEASE "-dead_strip")
 

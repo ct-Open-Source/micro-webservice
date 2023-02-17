@@ -167,20 +167,16 @@ struct handle_factor : trip::handler
     }
 };
 
-struct handle_count : trip::handler
+struct handle_countdown : trip::handler
 {
-    handle_count() = delete;
-    handle_count(int counter)
+    handle_countdown() = delete;
+    handle_countdown(int counter)
         : counter_(counter)
-    {
-    }
-    handle_count(handle_count const &o)
-        : counter_(o.counter_)
     {
     }
     trip::response operator()(trip::request const &)
     {
-        return trip::response{trip::status::ok, std::to_string(counter_++), "text/plain"};
+        return trip::response{trip::status::ok, std::to_string(counter_--), "text/plain"};
     }
 
 private:
@@ -195,7 +191,11 @@ struct handle_with_ioc : trip::handler
     }
     trip::response operator()(trip::request const &)
     {
-        return trip::response{trip::status::ok, "", "text/plain"};
+        return trip::response{trip::status::ok,
+          ioc_.stopped()
+          ? "stopped"
+          : "running",
+          "text/plain"};
     }
 private:
     boost::asio::io_context &ioc_;
