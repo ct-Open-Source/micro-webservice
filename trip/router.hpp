@@ -41,21 +41,21 @@ namespace trip {
 
     public:
         template<typename F>
-        router &head(path path, F handler)
+        router &head(path path, F handler) noexcept
         {
             handlers.emplace(path_method{path, http::verb::head}, handler);
             return *this;
         }
 
         template<typename F>
-        router &get(path path, F handler)
+        router &get(path path, F handler) noexcept
         {
             handlers.emplace(path_method{path, http::verb::get}, handler);
             return *this;
         }
 
         template<typename F>
-        router &post(path path, F handler)
+        router &post(path path, F handler) noexcept
         {
             handlers.emplace(path_method{path, http::verb::post}, handler);
             return *this;
