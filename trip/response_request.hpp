@@ -15,8 +15,8 @@
  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef __RESPONSE_REQUEST_HPP__
-#define __RESPONSE_REQUEST_HPP__
+#ifndef __TRIP_RESPONSE_REQUEST_HPP__
+#define __TRIP_RESPONSE_REQUEST_HPP__
 
 #include <string>
 #include <boost/beast/http.hpp>
@@ -36,4 +36,4 @@ namespace trip
     typedef http::status status;
 }
 
-#endif // __RESPONSE_REQUEST_HPP__
+#endif // __TRIP_RESPONSE_REQUEST_HPP__

@@ -15,68 +15,90 @@
  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef __ROUTER_HPP__
-#define __ROUTER_HPP__
+#ifndef __TRIP_ROUTER_HPP__
+#define __TRIP_ROUTER_HPP__
 
 #include <iostream>
 #include <string>
-#include <unordered_map>
+#include <vector>
 #include <functional>
 
 #include <boost/beast/http/string_body.hpp>
+#include <boost/regex.hpp>
 #include <boost/url.hpp>
 
-#include "path.hpp"
 #include "response_request.hpp"
 
-namespace trip {
+namespace trip
+{
     namespace http = boost::beast::http;
     namespace url = boost::urls;
 
     class router
     {
-        typedef std::function<response(const request &)> handler_t;
-    private:
-        std::unordered_map<path_method, handler_t> handlers;
+        typedef std::function<response(request const &, boost::smatch const &)> handler_t;
+        struct route
+        {
+            http::verb const verb;
+            boost::regex const endpoint;
+            handler_t const handler;
+            route() = delete;
+            route(http::verb const &verb, boost::regex const &endpoint, handler_t const &handler)
+                : verb(verb), endpoint(endpoint), handler(handler)
+            {
+            }
+        };
 
     public:
-        template<typename F>
-        router &head(path path, F handler) noexcept
+        template <typename F>
+        router &head(boost::regex endpoint, F handler) noexcept
         {
-            handlers.emplace(path_method{path, http::verb::head}, handler);
+            routes_.emplace_back(http::verb::head, endpoint, handler);
             return *this;
         }
 
-        template<typename F>
-        router &get(path path, F handler) noexcept
+        template <typename F>
+        router &get(boost::regex endpoint, F handler) noexcept
         {
-            handlers.emplace(path_method{path, http::verb::get}, handler);
+            routes_.emplace_back(http::verb::get, endpoint, handler);
             return *this;
         }
 
-        template<typename F>
-        router &post(path path, F handler) noexcept
+        template <typename F>
+        router &post(boost::regex endpoint, F handler) noexcept
         {
-            handlers.emplace(path_method{path, http::verb::post}, handler);
+            routes_.emplace_back(http::verb::post, endpoint, handler);
             return *this;
         }
 
-        response call(request const &req) const
+        response execute(request const &req) const
         {
             url::result<url::url_view> target = url::parse_origin_form(req.target());
             if (target.has_error())
             {
                 return trip::response{http::status::bad_request, "invalid target", "text/plain"};
             }
-            const path_method pm{target->path(), req.method()};
-            if (handlers.find(pm) != handlers.end())
+            boost::smatch match;
+            auto r = routes_.cbegin();
+            while (r != routes_.cend())
             {
-                return handlers.at(pm)(req);
+                if (r->verb == req.method() && boost::regex_match(target->path(), match, r->endpoint))
+                {
+                    break;
+                }
+                ++r;
+            }
+            if (r != routes_.cend())
+            {
+                return r->handler(req, match);
             }
             return trip::response{http::status::not_found, target->path() + " not found", "text/plain"};
         }
+
+    private:
+        std::vector<route> routes_;
     };
 
 }
 
-#endif // __ROUTER_HPP__
+#endif // __TRIP_ROUTER_HPP__

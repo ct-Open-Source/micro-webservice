@@ -18,6 +18,7 @@
 #ifndef __HANDLERS_HPP__
 #define __HANDLERS_HPP__
 
+#include <string>
 #include <sstream>
 #include <chrono>
 #include <vector>
@@ -31,6 +32,8 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/multiprecision/gmp.hpp>
+#include <boost/regex.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include "helper.hpp"
 #include "number_theory.hpp"
@@ -46,7 +49,7 @@ namespace url = boost::urls;
 
 struct handle_prime : trip::handler
 {
-    trip::response operator()(trip::request const &req)
+    trip::response operator()(trip::request const &req, boost::smatch const &)
     {
         pt::ptree request;
         std::stringstream iss;
@@ -108,7 +111,7 @@ struct handle_prime : trip::handler
 
 struct handle_factor : trip::handler
 {
-    trip::response operator()(trip::request const &req)
+    trip::response operator()(trip::request const &req, boost::smatch const &)
     {
         pt::ptree request;
         std::stringstream iss;
@@ -173,8 +176,9 @@ struct handle_countdown : trip::handler
     handle_countdown(int counter)
         : counter_(counter)
     {
+        /* ... */
     }
-    trip::response operator()(trip::request const &)
+    trip::response operator()(trip::request const &, boost::smatch const &)
     {
         return trip::response{trip::status::ok, std::to_string(counter_--), "text/plain"};
     }
@@ -183,13 +187,50 @@ private:
     int counter_;
 };
 
+struct handle_square : trip::handler
+{
+    trip::response operator()(trip::request const &, boost::smatch const &m)
+    {
+        if (m.size() != 2)
+        {
+            return trip::response{trip::status::bad_request};
+        }
+        auto const x = boost::lexical_cast<long long>(m[1]);
+        return trip::response{trip::status::ok, std::to_string(x * x), "text/plain"};
+    }
+};
+
+struct handle_mult : trip::handler
+{
+    trip::response operator()(trip::request const &, boost::smatch const &m)
+    {
+        if (m.size() != 3)
+        {
+            return trip::response{trip::status::bad_request};
+        }
+        long long a, b;
+        try
+        {
+            a = boost::lexical_cast<long long>(m[1]);
+            b = boost::lexical_cast<long long>(m[2]);
+        }
+        catch(std::exception const &e)
+        {
+            return trip::response{trip::status::bad_request, e.what(), "text/plain"};
+        }
+        std::cout << a << " * " << b << " = " << (a*b) << std::endl;
+        return trip::response{trip::status::ok, std::to_string(a * b), "text/plain"};
+    }
+};
+
 struct handle_with_ioc : trip::handler
 {
     handle_with_ioc(boost::asio::io_context &ioc)
     : ioc_(ioc)
     {
+        /* ... */
     }
-    trip::response operator()(trip::request const &)
+    trip::response operator()(trip::request const &, boost::smatch const &)
     {
         return trip::response{trip::status::ok,
           ioc_.stopped()

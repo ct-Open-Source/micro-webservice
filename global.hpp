@@ -18,6 +18,6 @@
 #ifndef __MAIN_HPP__
 #define __MAIN_HPP__
 
-#define SERVER_VERSION "v3"
+#define SERVER_INFO "Prime server v3"
 
 #endif // __MAIN_HPP__

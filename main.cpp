@@ -27,6 +27,7 @@
 
 #include <boost/lexical_cast.hpp>
 #include <boost/asio/signal_set.hpp>
+#include <boost/regex.hpp>
 
 #include "global.hpp"
 #include "helper.hpp"
@@ -46,7 +47,7 @@ namespace net = boost::asio;
 
 void hello()
 {
-  std::cout << "c't demo: micro webservice " << SERVER_VERSION << std::endl
+  std::cout << "c't demo: " << SERVER_INFO << std::endl
             << std::endl;
 }
 
@@ -98,7 +99,6 @@ int main(int argc, const char *argv[])
 
   boost::asio::io_context ioc;
   tcp::acceptor acceptor{ioc, {host, port}};
-  std::list<http_worker> workers;
 
   std::mutex log_mtx;
   http_worker::log_callback_t logger = [&log_mtx](const std::string &msg)
@@ -110,12 +110,15 @@ int main(int argc, const char *argv[])
 
   trip::router router;
   router
-    .post("/prime", handle_prime{})
-    .post("/factor", handle_factor{})
-    .get("/countdown", handle_countdown{10})
-    .get("/ioc", handle_with_ioc{ioc})
+    .post(boost::regex("/prime"), handle_prime{})
+    .post(boost::regex("/factor"), handle_factor{})
+    .get(boost::regex("/countdown"), handle_countdown{10})
+    .get(boost::regex("/square/(-?\\d+)"), handle_square{})
+    .get(boost::regex("/mult/(-?\\d+)/(-?\\d+)"), handle_mult{})
+    .get(boost::regex("/ioc"), handle_with_ioc{ioc})
   ;
 
+  std::list<http_worker> workers;
   for (auto i = 0U; i < num_workers; ++i)
   {
     workers.emplace_back(acceptor, router, &logger);

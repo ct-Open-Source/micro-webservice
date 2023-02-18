@@ -96,7 +96,7 @@ void http_worker::process_request(const http::request<http::string_body> &req)
        << req.target();
     (*log_callback_)(ss.str());
   }
-  trip::response response = router_.call(req);
+  trip::response response = router_.execute(req);
   if (response.status == http::status::ok)
   {
     send_response(response.body, response.mime_type);
@@ -109,7 +109,7 @@ void http_worker::process_request(const http::request<http::string_body> &req)
 
 void http_worker::send()
 {
-  response_->set(http::field::server, std::string("Micro server ") + SERVER_VERSION);
+  response_->set(http::field::server, SERVER_INFO);
   response_->set(http::field::access_control_allow_origin, "*");
   response_->prepare_payload();
   serializer_.emplace(*response_);

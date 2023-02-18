@@ -52,7 +52,7 @@ public:
 
 private:
   tcp::acceptor &acceptor_;
-  const trip::router &router_;
+  trip::router const &router_;
   tcp::socket socket_{acceptor_.get_executor()};
   beast::flat_buffer buffer_;
   std::optional<http::request_parser<http::string_body>> parser_;
