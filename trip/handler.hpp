@@ -18,7 +18,7 @@
 #ifndef __TRIP_HANDLER_HPP__
 #define __TRIP_HANDLER_HPP__
 
-#include <boost/regex.hpp>
+#include <regex>
 
 #include "response_request.hpp"
 
@@ -26,7 +26,7 @@ namespace trip
 {
     struct handler
     {
-        virtual response operator()(request const &, boost::smatch const &) = 0;
+        virtual response operator()(request const &, std::regex const &) = 0;
     };
 
 }

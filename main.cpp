@@ -22,12 +22,11 @@
 #include <list>
 #include <vector>
 #include <thread>
-#include <mutex>
 #include <memory>
+#include <regex>
 
 #include <boost/lexical_cast.hpp>
 #include <boost/asio/signal_set.hpp>
-#include <boost/regex.hpp>
 
 #include "global.hpp"
 #include "helper.hpp"
@@ -110,12 +109,12 @@ int main(int argc, const char *argv[])
 
   trip::router router;
   router
-    .post(boost::regex("/prime"), handle_prime{})
-    .post(boost::regex("/factor"), handle_factor{})
-    .get(boost::regex("/countdown"), handle_countdown{10})
-    .get(boost::regex("/square/(-?\\d+)"), handle_square{})
-    .get(boost::regex("/mult/(-?\\d+)/(-?\\d+)"), handle_mult{})
-    .get(boost::regex("/ioc"), handle_with_ioc{ioc})
+    .post(std::regex("/prime"), handle_prime{}, false)
+    .post(std::regex("/factor"), handle_factor{}, false)
+    .get(std::regex("/countdown"), handle_countdown{10}, true)
+    .get(std::regex("/square/(-?\\d+)"), handle_square{}, false)
+    .get(std::regex("/mult/(-?\\d+)/(-?\\d+)"), handle_mult{}, false)
+    .get(std::regex("/ioc"), handle_with_ioc{ioc}, false)
   ;
 
   std::list<http_worker> workers;

@@ -32,8 +32,8 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/multiprecision/gmp.hpp>
-#include <boost/regex.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/url.hpp>
 
 #include "helper.hpp"
 #include "number_theory.hpp"
@@ -49,7 +49,7 @@ namespace url = boost::urls;
 
 struct handle_prime : trip::handler
 {
-    trip::response operator()(trip::request const &req, boost::smatch const &)
+    trip::response operator()(trip::request const &req, std::regex const &)
     {
         pt::ptree request;
         std::stringstream iss;
@@ -111,7 +111,7 @@ struct handle_prime : trip::handler
 
 struct handle_factor : trip::handler
 {
-    trip::response operator()(trip::request const &req, boost::smatch const &)
+    trip::response operator()(trip::request const &req, std::regex const &)
     {
         pt::ptree request;
         std::stringstream iss;
@@ -175,10 +175,8 @@ struct handle_countdown : trip::handler
     handle_countdown() = delete;
     handle_countdown(int counter)
         : counter_(counter)
-    {
-        /* ... */
-    }
-    trip::response operator()(trip::request const &, boost::smatch const &)
+    {}
+    trip::response operator()(trip::request const &, std::regex const &)
     {
         return trip::response{trip::status::ok, std::to_string(counter_--), "text/plain"};
     }
@@ -189,30 +187,36 @@ private:
 
 struct handle_square : trip::handler
 {
-    trip::response operator()(trip::request const &, boost::smatch const &m)
+    trip::response operator()(trip::request const &req, std::regex const &re)
     {
-        if (m.size() != 2)
+        url::result<url::url_view> const &target = url::parse_origin_form(req.target());
+        std::string const &path = target->path();
+        std::smatch match;
+        if (!std::regex_match(path, match, re))
         {
             return trip::response{trip::status::bad_request};
         }
-        auto const x = boost::lexical_cast<long long>(m[1]);
+        auto const x = boost::lexical_cast<long long>(match[1]);
         return trip::response{trip::status::ok, std::to_string(x * x), "text/plain"};
     }
 };
 
 struct handle_mult : trip::handler
 {
-    trip::response operator()(trip::request const &, boost::smatch const &m)
+    trip::response operator()(trip::request const &req, std::regex const &re)
     {
-        if (m.size() != 3)
+        url::result<url::url_view> const &target = url::parse_origin_form(req.target());
+        std::string const &path = target->path();
+        std::smatch match;
+        if (!std::regex_match(path, match, re))
         {
             return trip::response{trip::status::bad_request};
         }
         long long a, b;
         try
         {
-            a = boost::lexical_cast<long long>(m[1]);
-            b = boost::lexical_cast<long long>(m[2]);
+            a = boost::lexical_cast<long long>(match[1]);
+            b = boost::lexical_cast<long long>(match[2]);
         }
         catch(std::exception const &e)
         {
@@ -230,7 +234,7 @@ struct handle_with_ioc : trip::handler
     {
         /* ... */
     }
-    trip::response operator()(trip::request const &, boost::smatch const &)
+    trip::response operator()(trip::request const &, std::regex const &)
     {
         return trip::response{trip::status::ok,
           ioc_.stopped()

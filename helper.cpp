@@ -15,19 +15,19 @@
  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <boost/regex.hpp>
+#include <regex>
 
 #include "helper.hpp"
 
 std::string convert_float(std::string const &json_str)
 {
-    static boost::regex re("\\\"([0-9]+\\.?[0-9]*)\\\"");
-    return boost::regex_replace(json_str, re, "$1");
+    static std::regex re("\\\"([0-9]+\\.?[0-9]*)\\\"");
+    return std::regex_replace(json_str, re, "$1");
 }
 
 
 std::string convert_bool(std::string const &json_str)
 {
-    static boost::regex re("\\\"(true|false)\\\"");
-    return boost::regex_replace(json_str, re, "$1");
+    static std::regex re("\\\"(true|false)\\\"");
+    return std::regex_replace(json_str, re, "$1");
 }

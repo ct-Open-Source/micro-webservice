@@ -22,9 +22,11 @@
 #include <string>
 #include <vector>
 #include <functional>
+#include <regex>
+#include <mutex>
+#include <memory>
 
 #include <boost/beast/http/string_body.hpp>
-#include <boost/regex.hpp>
 #include <boost/url.hpp>
 
 #include "response_request.hpp"
@@ -33,41 +35,64 @@ namespace trip
 {
     namespace http = boost::beast::http;
     namespace url = boost::urls;
+    namespace asio = boost::asio;
 
     class router
     {
-        typedef std::function<response(request const &, boost::smatch const &)> handler_t;
+        typedef std::function<response(request const &, std::regex const &)> handler_t;
         struct route
         {
             http::verb const verb;
-            boost::regex const endpoint;
-            handler_t const handler;
+            std::regex const endpoint;
+            handler_t const &handler;
+            std::unique_ptr<std::mutex> mutex;
             route() = delete;
-            route(http::verb const &verb, boost::regex const &endpoint, handler_t const &handler)
-                : verb(verb), endpoint(endpoint), handler(handler)
+            route(http::verb const &verb, std::regex const &endpoint, handler_t const &handler, bool serialize)
+            : verb(verb)
+            , endpoint(endpoint)
+            , handler(handler)
             {
+                if (serialize)
+                {
+                    mutex = std::make_unique<std::mutex>();
+                }
             }
         };
 
     public:
-        template <typename F>
-        router &head(boost::regex endpoint, F handler) noexcept
+        router &get(std::regex endpoint, handler_t handler, bool serialize) noexcept
         {
-            routes_.emplace_back(http::verb::head, endpoint, handler);
+            routes_.emplace_back(http::verb::get, endpoint, handler, serialize);
             return *this;
         }
 
-        template <typename F>
-        router &get(boost::regex endpoint, F handler) noexcept
+        router &post(std::regex endpoint, handler_t handler, bool serialize) noexcept
         {
-            routes_.emplace_back(http::verb::get, endpoint, handler);
+            routes_.emplace_back(http::verb::post, endpoint, handler, serialize);
             return *this;
         }
 
-        template <typename F>
-        router &post(boost::regex endpoint, F handler) noexcept
+        router &options(std::regex endpoint, handler_t handler, bool serialize) noexcept
         {
-            routes_.emplace_back(http::verb::post, endpoint, handler);
+            routes_.emplace_back(http::verb::options, endpoint, handler, serialize);
+            return *this;
+        }
+
+        router &head(std::regex endpoint, handler_t handler, bool serialize) noexcept
+        {
+            routes_.emplace_back(http::verb::head, endpoint, handler, serialize);
+            return *this;
+        }
+
+        router &put(std::regex endpoint, handler_t handler, bool serialize) noexcept
+        {
+            routes_.emplace_back(http::verb::put, endpoint, handler, serialize);
+            return *this;
+        }
+
+        router &patch(std::regex endpoint, handler_t handler, bool serialize) noexcept
+        {
+            routes_.emplace_back(http::verb::patch, endpoint, handler, serialize);
             return *this;
         }
 
@@ -78,19 +103,17 @@ namespace trip
             {
                 return trip::response{http::status::bad_request, "invalid target", "text/plain"};
             }
-            boost::smatch match;
-            auto r = routes_.cbegin();
-            while (r != routes_.cend())
+            for (route const &r : routes_)
             {
-                if (r->verb == req.method() && boost::regex_match(target->path(), match, r->endpoint))
+                if (r.verb == req.method() && std::regex_match(target->path(), r.endpoint))
                 {
-                    break;
+                    if (r.mutex)
+                    {
+                        std::lock_guard<std::mutex> lock(*r.mutex);
+                        return r.handler(req, r.endpoint);
+                    }
+                    return r.handler(req, r.endpoint);
                 }
-                ++r;
-            }
-            if (r != routes_.cend())
-            {
-                return r->handler(req, match);
             }
             return trip::response{http::status::not_found, target->path() + " not found", "text/plain"};
         }
