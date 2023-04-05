@@ -2,17 +2,29 @@
 
 ## Für c’t-Leser
 
-Dieses Repository enthält den Quellcode für den in c’t 7/2023, S. 140, entwickelten Micro-Webservice. Um es auf Ihren Rechner zu bekommen, müssen Sie es klonen:
+Dieses Repository enthält den Quellcode für den in c’t 7–9/2023 entwickelten Webservice. Um es auf Ihren Rechner zu bekommen, müssen Sie es klonen:
 
 ```
 git clone https://github.com/ct-Open-Source/micro-webservice.git
 cd micro-webservice
 ```
 
-Der Code für den 1. Teil befindet sich im Branch „part1“. Sie checken ihn aus mit
+Der Code für den [1. Teil](https://www.heise.de/select/ct/2023/7/2303016374942185339) befindet sich im Branch „part1“. Sie checken ihn aus mit
 
 ```
 git checkout part1
+```
+
+Der Code für den [2. Teil](https://www.heise.de/select/ct/2023/8/2303413085906187110) befindet sich im Branch „part2“. Sie checken ihn aus mit
+
+```
+git checkout part2
+```
+
+Der Code für den [3. Teil](https://www.heise.de/select/ct/2023/9/2305915484770006026) befindet sich im Branch „part3“. Sie checken ihn aus mit
+
+```
+git checkout part3
 ```
 
 ## Systemvoraussetzungen
