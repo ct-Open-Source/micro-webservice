@@ -56,7 +56,7 @@ Wenn Sie statt eines Release ein Binary zum Debuggen erzeugen wollen, wählen Si
 Falls CMake die Boost-Bibliothek nicht finden kann, müssen Sie den Pfad (beispielsweise /opt/boost-1_81_0) dorthin in der Umgebungsvariable `BOOST_ROOT` angeben:
 
 ```
-BOOST_ROOT=/opt/boost-1_18_0
+BOOST_ROOT=/opt/boost-1_81_0
 ```
 
 Nun können Sie den Compiler anwerfen:
