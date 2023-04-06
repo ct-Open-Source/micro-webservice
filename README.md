@@ -40,7 +40,7 @@ sudo apt install libboost-dev
 ### macOS 13 Ventura
 
 ```
-brew install libboost-dev
+brew install boost
 ```
 
 ## Kompilieren
