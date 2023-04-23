@@ -25,6 +25,8 @@ Der Webservice benötigt das [Boost](https://www.boost.org/)-Framework, das Sie 
 sudo apt install libboost-dev
 ```
 
+Ggf. sind noch die Pakete `libblkid-dev`, `e2fslibs-dev`, `libboost-all-dev` und `libaudit-dev` zu installieren.
+
 ### macOS 13 Ventura
 
 ```
@@ -36,7 +38,9 @@ brew install libboost-dev
 Zum Erzeugen der Build-Dateien kommt [CMake](https://cmake.org/) zum Einsatz:
 
 ```
-CMAKE_BUILD_TYPE=Release cmake .
+mkdir -p build
+cd build
+cmake -DCMAKE_BUILD_TYPE=Release ..
 ```
 
 Wenn Sie statt eines Release ein Binary zum Debuggen erzeugen wollen, wählen Sie „Debug“ statt „Release“.
