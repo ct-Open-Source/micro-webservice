@@ -41,6 +41,8 @@ Der Webservice benötigt das [Boost](https://www.boost.org/)-Framework, das Sie 
 sudo apt install libboost-dev
 ```
 
+Ggf. sind noch die Pakete `libblkid-dev`, `e2fslibs-dev`, `libboost-all-dev` und `libaudit-dev` zu installieren.
+
 ### macOS 13 Ventura
 
 ```
