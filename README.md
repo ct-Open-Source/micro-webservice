@@ -54,7 +54,9 @@ brew install libboost-dev
 Zum Erzeugen der Build-Dateien kommt [CMake](https://cmake.org/) zum Einsatz:
 
 ```
-CMAKE_BUILD_TYPE=Release cmake .
+mkdir -p build
+cd build
+cmake -DCMAKE_BUILD_TYPE=Release ..
 ```
 
 Wenn Sie statt eines Release ein Binary zum Debuggen erzeugen wollen, wählen Sie „Debug“ statt „Release“.
