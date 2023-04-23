@@ -63,7 +63,7 @@ public:
     static std::vector<bigint> factors(bigint x)
     {
         std::vector<bigint> result;
-        if (is_prime(x))
+        if (is_prime(x) == primality::mr_result::prime)
         {
             return result;
         }
