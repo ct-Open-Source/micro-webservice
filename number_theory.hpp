@@ -195,7 +195,7 @@ public:
             }
             else
             {
-                A.reserve(amax);
+                A.reserve(static_cast<size_t>(amax));
                 for (bigint a = 2; a < amax; ++a)
                 {
                     A.push_back(a);
