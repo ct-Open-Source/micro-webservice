@@ -79,7 +79,7 @@ public:
     static std::vector<bigint> factors(bigint x)
     {
         std::vector<bigint> result;
-        if (is_prime(x) != composite)
+        if (is_prime(x) != composite == primality::mr_result::prime)
         {
             return result;
         }
@@ -211,8 +211,8 @@ public:
             }
             else
             {
-                A.reserve(amax - 1);
-                for (bigint a = 2; a <= amax; ++a)
+                A.reserve(amax);
+                for (bigint a = 2; a < amax; ++a)
                 {
                     A.push_back(a);
                 }
@@ -224,7 +224,7 @@ public:
         {
             d /= 2;
         }
-        for (const bigint &a : A)
+        for (const bigint a : A)
         {
             if (mr_prime(d, n, a) == false)
             {
