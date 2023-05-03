@@ -5,8 +5,8 @@
 Dieses Repository enthält den Quellcode für den in c’t 7–9/2023 entwickelten Webservice. Um es auf Ihren Rechner zu bekommen, müssen Sie es klonen:
 
 ```
-git clone https://github.com/ct-Open-Source/micro-webservice.git ct-webservice
-cd ct-webservice
+git clone https://github.com/ct-Open-Source/micro-webservice.git
+cd micro-webservice
 ```
 
 Der Code für den [1. Teil](https://www.heise.de/select/ct/2023/7/2303016374942185339) befindet sich im Branch „part1“. Sie checken ihn aus mit
@@ -27,6 +27,8 @@ Der Code für den [3. Teil](https://www.heise.de/select/ct/2023/9/23059154847700
 git checkout part3
 ```
 
+**Vor dem Ausprobieren von Teil 3 unter Windows oder Windows Subsystem for Linux bitte [Issue #4](https://github.com/ct-Open-Source/micro-webservice/issues/4) beachten!**
+
 ## Systemvoraussetzungen
 
 Der Webservice benötigt das [Boost](https://www.boost.org/)-Framework, das Sie wie folgt installieren können.
@@ -43,6 +45,19 @@ Ggf. sind noch die Pakete `libblkid-dev`, `e2fslibs-dev`, `libboost-all-dev` und
 
 ```
 brew install libboost-dev
+```
+
+### WSL/Windows 11
+
+```
+mkdir -p ~/tmp
+cd ~/tmp
+wget https://boostorg.jfrog.io/artifactory/main/release/1.82.0/source/boost_1_82_0.tar.gz
+cd boost_1_82_0
+./bootstrap.sh
+./b2 cxxflags=-std=c++17
+mkdir -p ~/dev
+./b2 install --prefix=/home/<youruserid>/dev
 ```
 
 ### Windows 11
@@ -111,11 +126,19 @@ Es entsteht das Binary `micro-webservice`, das Sie mit
 
 aufrufen können.
 
+### WSL/Windows 11
+
+```
+cd micro-webservice
+mkdir -p build
+cd build
+BOOST_ROOT=~/dev/boost_1_82_0 cmake -DCMAKE_BUILD_TYPE=Release ..
+```
+
 
 ### Windows
 
 ```
-git clone https://github.com/ct-Open-Source/micro-webservice.git
 cd micro-webservice
 md build
 cd build
