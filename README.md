@@ -39,7 +39,41 @@ Ggf. sind noch die Pakete `libblkid-dev`, `e2fslibs-dev`, `libboost-all-dev` und
 brew install libboost-dev
 ```
 
-## Kompilieren
+### Windows 11
+
+Windows-Nutzer müssen die benötigten Bibliotheken Boost und GMP aus dem Quellcode übersetzen.
+
+#### Boost
+
+- [Quellcode](https://boostorg.jfrog.io/artifactory/main/release/1.82.0/source/) der aktuellen Boost-Version (derzeit 1.82.0) herunterladen und entpacken
+- Im Visual Studio Developer Command Prompt in das entpackte Verzeichnis wechseln und dann eingeben:
+
+```
+bootstrap
+md %HOMEPATH%\dev
+b2 cxxflags=-std=c++17
+b2 install --prefix=%HOMEPATH%\dev
+```
+
+#### GMP
+
+```
+git clone https://github.com/gx/gmp.git
+cd gmp
+mkdir build
+cd build
+cmake -DCMAKE_INSTALL_PREFIX=%HOMEPATH%\dev ..
+cmake --build . --config Release --target ALL_BUILD
+cmake --build . --config Release --target RUN_TESTS
+cmake --build . --config Release --target INSTALL
+cd %HOMEPATH%\dev\gmp\lib
+copy libgmp-13.lib gmp.lib
+copy libgmpxx-9.lib gmpxx.lib
+```
+
+## Webservice kompilieren
+
+### macOS, Linux
 
 Zum Erzeugen der Build-Dateien kommt [CMake](https://cmake.org/) zum Einsatz:
 
@@ -54,7 +88,7 @@ Wenn Sie statt eines Release ein Binary zum Debuggen erzeugen wollen, wählen Si
 Falls CMake die Boost-Bibliothek nicht finden kann, müssen Sie den Pfad (beispielsweise /opt/boost-1_81_0) dorthin in der Umgebungsvariable `BOOST_ROOT` angeben:
 
 ```
-BOOST_ROOT=/opt/boost-1_18_0
+BOOST_ROOT=/opt/boost-1_81_0
 ```
 
 Nun können Sie den Compiler anwerfen:
@@ -71,6 +105,25 @@ Es entsteht das Binary `micro-webservice`, das Sie mit
 
 aufrufen können.
 
+
+### Windows
+
+```
+git clone https://github.com/ct-Open-Source/micro-webservice.git
+cd micro-webservice
+md build
+cd build
+set GMP_ROOT=%HOMEPATH%\dev\gmp
+set BOOST_ROOT=%HOMEPATH%\dev\boost_1_82_0
+cmake --fresh ..
+cmake --build . --config Release
+```
+
+Bevor Sie die im Verzeichnis Release entstandene EXE-Datei `micro-webservice.exe` aufrufen können, müssen Sie noch die DLL der GMP-Bibliothek dorthin kopieren:
+
+```
+copy %HOMEPATH%\dev\gmp\bin\libgmp-13.dll Release
+```
 
 _Copyright ©️ 2023 [Oliver Lau](mailto:ola@ct.de), [Heise](https://www.heise.de/) Medien GmbH & Co. KG_
 
