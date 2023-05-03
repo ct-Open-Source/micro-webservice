@@ -31,6 +31,8 @@ Der Code für den [3. Teil](https://www.heise.de/select/ct/2023/9/23059154847700
 git checkout part3
 ```
 
+Bitte [Issue #4](https://github.com/ct-Open-Source/micro-webservice/issues/4) beachten!
+
 ## Systemvoraussetzungen
 
 Der Webservice benötigt das [Boost](https://www.boost.org/)-Framework, das Sie wie folgt installieren können.
@@ -47,6 +49,19 @@ Ggf. sind noch die Pakete `libblkid-dev`, `e2fslibs-dev`, `libboost-all-dev` und
 
 ```
 brew install libboost-dev
+```
+
+### WSL/Windows 11
+
+```
+mkdir -p ~/tmp
+cd ~/tmp
+wget https://boostorg.jfrog.io/artifactory/main/release/1.82.0/source/boost_1_82_0.tar.gz
+cd boost_1_82_0
+./bootstrap.sh
+./b2 cxxflags=-std=c++17
+mkdir -p ~/dev
+./b2 install --prefix=/home/<youruserid>/dev
 ```
 
 ### Windows 11
@@ -88,6 +103,8 @@ copy libgmpxx-9.lib gmpxx.lib
 Zum Erzeugen der Build-Dateien kommt [CMake](https://cmake.org/) zum Einsatz:
 
 ```
+git clone https://github.com/ct-Open-Source/micro-webservice.git
+cd micro-webservice
 mkdir -p build
 cd build
 cmake -DCMAKE_BUILD_TYPE=Release ..
@@ -114,6 +131,16 @@ Es entsteht das Binary `micro-webservice`, das Sie mit
 ```
 
 aufrufen können.
+
+### WSL/Windows 11
+
+```
+git clone https://github.com/ct-Open-Source/micro-webservice.git
+cd micro-webservice
+mkdir -p build
+cd build
+BOOST_ROOT=~/dev/boost_1_82_0 cmake -DCMAKE_BUILD_TYPE=Release ..
+```
 
 
 ### Windows
