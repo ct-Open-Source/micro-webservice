@@ -79,7 +79,7 @@ public:
     static std::vector<bigint> factors(bigint x)
     {
         std::vector<bigint> result;
-        if (is_prime(x) != composite == primality::mr_result::prime)
+        if (is_prime(x) != composite == primality::primality_result::prime)
         {
             return result;
         }
