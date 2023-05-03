@@ -31,7 +31,7 @@ Der Code für den [3. Teil](https://www.heise.de/select/ct/2023/9/23059154847700
 git checkout part3
 ```
 
-Bitte [Issue #4](https://github.com/ct-Open-Source/micro-webservice/issues/4) beachten!
+**Vor dem Ausprobieren von Teil 3 unter Windows oder Windows Subsystem for Linux bitte [Issue #4](https://github.com/ct-Open-Source/micro-webservice/issues/4) beachten!**
 
 ## Systemvoraussetzungen
 
