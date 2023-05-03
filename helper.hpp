@@ -12,8 +12,7 @@ std::ostream &operator<<(std::ostream &stream, const std::chrono::time_point<Clo
   const time_t time = Clock::to_time_t(time_point);
 #if _MSC_VER
   char buffer[26];
-  errno_t e = ctime_s(buffer, 26, &time);
-  assert(e == 0 && "Huh? ctime_s returned an error");
+  ctime_s(buffer, 26, &time);
   return stream << buffer;
 #elif __GNUC__ > 4 || ((__GNUC__ == 4) && __GNUC_MINOR__ > 8 && __GNUC_REVISION__ > 1)
   struct tm tm;
