@@ -111,7 +111,6 @@ namespace trip
                         std::lock_guard<std::mutex> lock(*r.mutex.get());
                         return r.handler(req, r.endpoint);
                     }
-                    std::cout << "CALLING handler " << r.handler << "\n";
                     return r.handler(req, r.endpoint);
                 }
             }
