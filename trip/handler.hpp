@@ -27,6 +27,7 @@ namespace trip
     struct handler
     {
         virtual response operator()(request const &, std::regex const &) = 0;
+        virtual ~handler() {}
     };
 
 }

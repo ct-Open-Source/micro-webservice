@@ -46,16 +46,15 @@ namespace trip
             std::regex const endpoint;
             handler_t const &handler;
             std::unique_ptr<std::mutex> mutex;
+            bool serialize{false};
             route() = delete;
             route(http::verb const &verb, std::regex const &endpoint, handler_t const &handler, bool serialize)
             : verb(verb)
             , endpoint(endpoint)
             , handler(handler)
+            , mutex(std::make_unique<std::mutex>())
+            , serialize(serialize)
             {
-                if (serialize)
-                {
-                    mutex = std::make_unique<std::mutex>();
-                }
             }
         };
 
@@ -107,11 +106,12 @@ namespace trip
             {
                 if (r.verb == req.method() && std::regex_match(target->path(), r.endpoint))
                 {
-                    if (r.mutex)
+                    if (r.serialize)
                     {
-                        std::lock_guard<std::mutex> lock(*r.mutex);
+                        std::lock_guard<std::mutex> lock(*r.mutex.get());
                         return r.handler(req, r.endpoint);
                     }
+                    std::cout << "CALLING handler " << r.handler << "\n";
                     return r.handler(req, r.endpoint);
                 }
             }
