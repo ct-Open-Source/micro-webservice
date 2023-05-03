@@ -47,9 +47,9 @@ namespace http = beast::http;
 namespace chrono = std::chrono;
 namespace url = boost::urls;
 
-struct handle_prime : trip::handler
+struct handle_prime
 {
-    trip::response operator()(trip::request const &req, std::regex const &)
+    virtual trip::response operator()(trip::request const &req, std::regex const &)
     {
         pt::ptree request;
         std::stringstream iss;
@@ -109,9 +109,9 @@ struct handle_prime : trip::handler
     }
 };
 
-struct handle_factor : trip::handler
+struct handle_factor
 {
-    trip::response operator()(trip::request const &req, std::regex const &)
+    virtual trip::response operator()(trip::request const &req, std::regex const &)
     {
         pt::ptree request;
         std::stringstream iss;
@@ -170,13 +170,13 @@ struct handle_factor : trip::handler
     }
 };
 
-struct handle_countdown : trip::handler
+struct handle_countdown
 {
     handle_countdown() = delete;
     handle_countdown(int counter)
         : counter_(counter)
     {}
-    trip::response operator()(trip::request const &, std::regex const &)
+    virtual trip::response operator()(trip::request const &, std::regex const &)
     {
         return trip::response{trip::status::ok, std::to_string(counter_--), "text/plain"};
     }
@@ -185,9 +185,9 @@ private:
     int counter_;
 };
 
-struct handle_square : trip::handler
+struct handle_square
 {
-    trip::response operator()(trip::request const &req, std::regex const &re)
+    virtual trip::response operator()(trip::request const &req, std::regex const &re)
     {
         url::result<url::url_view> const &target = url::parse_origin_form(req.target());
         std::string const &path = target->path();
@@ -201,9 +201,9 @@ struct handle_square : trip::handler
     }
 };
 
-struct handle_mult : trip::handler
+struct handle_mult
 {
-    trip::response operator()(trip::request const &req, std::regex const &re)
+    virtual trip::response operator()(trip::request const &req, std::regex const &re)
     {
         url::result<url::url_view> const &target = url::parse_origin_form(req.target());
         std::string const &path = target->path();
@@ -226,14 +226,14 @@ struct handle_mult : trip::handler
     }
 };
 
-struct handle_with_ioc : trip::handler
+struct handle_with_ioc
 {
     handle_with_ioc(boost::asio::io_context &ioc)
     : ioc_(ioc)
     {
         /* ... */
     }
-    trip::response operator()(trip::request const &, std::regex const &)
+    virtual trip::response operator()(trip::request const &, std::regex const &)
     {
         return trip::response{trip::status::ok,
           ioc_.stopped()

@@ -82,49 +82,6 @@ namespace trip
             return *this;
         }
 
-        template<typename F, typename... Args>
-        router &head(std::regex endpoint, F handler, bool serialize, Args... args)
-        {
-            handler_t callback = [&handler, &endpoint, &args...](const request &req)
-            {
-                return handler(req, endpoint, args...);
-            };
-            routes_.emplace_back(http::verb::head, endpoint, callback, serialize);
-            return *this;
-        }
-
-        template<typename F, typename... Args>
-        router &options(std::regex endpoint, F handler, bool serialize, Args... args)
-        {
-            handler_t callback = [&handler, &endpoint, &args...](const request &req)
-            {
-                return handler(req, endpoint, args...);
-            };
-            routes_.emplace_back(http::verb::options, endpoint, callback, serialize);
-            return *this;
-        }
-
-        template<typename F, typename... Args>
-        router &put(std::regex endpoint, F handler, bool serialize, Args... args)
-        {
-            handler_t callback = [&handler, &endpoint, &args...](const request &req)
-            {
-                return handler(req, endpoint, args...);
-            };
-            routes_.emplace_back(http::verb::put, endpoint, callback, serialize);
-            return *this;
-        }
-
-        template<typename F, typename... Args>
-        router &patch(std::regex endpoint, F handler, bool serialize, Args... args)
-        {
-            handler_t callback = [&handler, &endpoint, &args...](const request &req)
-            {
-                return handler(req, endpoint, args...);
-            };
-            routes_.emplace_back(http::verb::patch, endpoint, callback, serialize);
-            return *this;
-        }
 
         response execute(request const &req) const
         {

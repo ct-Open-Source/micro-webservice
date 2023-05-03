@@ -17,7 +17,7 @@ if (MSVC)
 endif (MSVC)
 
 set(BOOST_ROOT $ENV{BOOST_ROOT})
-find_package(Boost 1.81.0 REQUIRED COMPONENTS url regex)
+find_package(Boost 1.81.0 REQUIRED COMPONENTS url)
 message(STATUS "Boost include dirs: ${Boost_INCLUDE_DIRS}")
 message(STATUS "Boost lib dirs: ${Boost_LIBRARY_DIRS}")
 message(STATUS "Boost libs: ${Boost_LIBRARIES}")

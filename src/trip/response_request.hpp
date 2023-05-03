@@ -27,7 +27,7 @@ namespace trip
 
     struct response
     {
-        http::status status;
+        http::status status{http::status::not_implemented};
         std::string body{};
         std::string mime_type{"application/json"};
     };
