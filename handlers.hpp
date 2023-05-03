@@ -54,8 +54,6 @@ struct handle_prime : trip::handler
         pt::ptree request;
         std::stringstream iss;
         iss << req.body();
-        std::cout << "handle_prime()\n";
-
         try
         {
             pt::read_json(iss, request);
