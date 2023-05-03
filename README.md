@@ -33,6 +33,15 @@ sudo apt install libboost-dev
 
 Ggf. sind noch die Pakete `libblkid-dev`, `e2fslibs-dev`, `libboost-all-dev` und `libaudit-dev` zu installieren.
 
+
+### WSL in Windows 11
+
+```
+sudo apt install libboost-all-dev
+sudo apt install libgmp3-dev
+```
+
+
 ### macOS 13 Ventura
 
 ```
@@ -105,6 +114,15 @@ Es entsteht das Binary `micro-webservice`, das Sie mit
 
 aufrufen können.
 
+
+### WSL in Windows 11
+
+```
+mkdir -p build
+cd build
+cmake -DCMAKE_BUILD_TYPE=Release ..
+cmake --build .
+```
 
 ### Windows
 
