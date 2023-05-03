@@ -10,7 +10,12 @@ template<typename Clock, typename Duration>
 std::ostream &operator<<(std::ostream &stream, const std::chrono::time_point<Clock, Duration> &time_point)
 {
   const time_t time = Clock::to_time_t(time_point);
-#if __GNUC__ > 4 || ((__GNUC__ == 4) && __GNUC_MINOR__ > 8 && __GNUC_REVISION__ > 1)
+#if _MSC_VER
+  char buffer[26];
+  errno_t e = ctime_s(buffer, 26, &time);
+  assert(e == 0 && "Huh? ctime_s returned an error");
+  return stream << buffer;
+#elif __GNUC__ > 4 || ((__GNUC__ == 4) && __GNUC_MINOR__ > 8 && __GNUC_REVISION__ > 1)
   struct tm tm;
   localtime_r(&time, &tm);
   return stream << std::put_time(&tm, "%c");
