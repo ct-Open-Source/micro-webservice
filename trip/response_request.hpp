@@ -28,8 +28,8 @@ namespace trip
     struct response
     {
         http::status status;
-        std::string body;
-        std::string mime_type = "application/json";
+        std::string body{};
+        std::string mime_type{"application/json"};
     };
 
     typedef http::request<http::string_body> request;

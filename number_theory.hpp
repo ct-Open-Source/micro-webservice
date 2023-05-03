@@ -224,7 +224,7 @@ public:
         {
             d /= 2;
         }
-        for (const bigint a : A)
+        for (bigint const &a : A)
         {
             if (mr_prime(d, n, a) == false)
             {
