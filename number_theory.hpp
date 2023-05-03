@@ -6,7 +6,12 @@
 
 #include <boost/random.hpp>
 #include <boost/multiprecision/gmp.hpp>
+#include <cmath>
 #include <gmp.h>
+
+#ifndef M_LN2
+#define M_LN2 (0.693147180559945309417)
+#endif
 
 typedef boost::multiprecision::mpz_int bigint;
 
@@ -73,7 +78,7 @@ public:
             bigint i = 2;
             bool found = false;
             bigint p;
-            while (i*i <= z and !found)
+            while (i*i <= z && !found)
             {
                 if (z % i == 0)
                 {

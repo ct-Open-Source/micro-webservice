@@ -1,14 +1,23 @@
 cmake_minimum_required(VERSION 3.16)
 
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g3 -ggdb -DDEBUG -Wall -Wextra -Wconversion -Wreorder -Wuninitialized -Wtype-limits -Wno-pragmas")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG -Wno-deprecated")
 
-project(micro-webservice)
+project(micro-webservice VERSION 0.1 LANGUAGES CXX)
+
+if (UNIX)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -pedantic")
+	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O2")
+endif (UNIX)
+
+if (MSVC)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D_WIN32_WINDOWS /wd4018 /wd4267 /wd4244 /wd4365 /wd4514 /wd4668 /wd4710 /wd4711 /wd4625 /wd4626 /wd4702 /wd4820 /wd5027 /wd5039 /wd5045 /wd5262")
+	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} /Od /Wall")
+	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} /O2")
+endif (MSVC)
 
 set(BOOST_ROOT $ENV{BOOST_ROOT})
-find_package(Boost 1.71.0 REQUIRED COMPONENTS regex)
-message(STATUS "Boost version: ${Boost_VERSION}")
+find_package(Boost 1.71.0 REQUIRED)
 message(STATUS "Boost include dirs: ${Boost_INCLUDE_DIRS}")
 message(STATUS "Boost lib dirs: ${Boost_LIBRARY_DIRS}")
 message(STATUS "Boost libs: ${Boost_LIBRARIES}")
@@ -20,11 +29,15 @@ endif()
 # GMP
 find_path(GMP_C_INCLUDES
   NAMES gmp.h
+  HINTS $ENV{GMP_ROOT}/include
+  REQUIRED
   DOC "GMP C header"
 )
 message(STATUS "GMP include dir: ${GMP_C_INCLUDES}")
 find_library(GMP_C_LIBRARIES
-  NAMES gmp
+  NAMES gmp libgmp-13.lib 
+  HINTS $ENV{GMP_ROOT}/lib
+  REQUIRED
   DOC "GMP C libraries"
 )
 cmake_path(GET GMP_C_LIBRARIES PARENT_PATH GMP_LIB_DIR)
@@ -38,20 +51,19 @@ add_executable(micro-webservice
   httpworker.cpp
   uri.cpp
 )
-set_target_properties(micro-webservice PROPERTIES LINK_FLAGS_RELEASE "-dead_strip")
+
 
 if(UNIX)
   set(CMAKE_CXX_FLAGS "-std=c++17 -pthread")
   set(PLATFORM_DEPENDENT_LIBRARIES, "-lpthread")
   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -ggdb")
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2")
+  add_custom_command(TARGET micro-webservice 
+    POST_BUILD
+    COMMAND strip micro-webservice)
 else()
   set(PLATFORM_DEPENDENT_LIBRARIES, "")
 endif()
-
-add_custom_command(TARGET micro-webservice 
-  POST_BUILD
-  COMMAND strip micro-webservice)
 
 target_include_directories(micro-webservice
 	PRIVATE ${PROJECT_INCLUDE_DIRS}
@@ -59,11 +71,7 @@ target_include_directories(micro-webservice
 
 target_link_libraries(micro-webservice
 	${Boost_LIBRARIES}
-  gmp
+	gmp
 )
-
-add_custom_command(TARGET micro-webservice
-  POST_BUILD
-  COMMAND strip micro-webservice)
 
 install(TARGETS micro-webservice RUNTIME DESTINATION bin)
