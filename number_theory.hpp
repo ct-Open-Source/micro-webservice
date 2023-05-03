@@ -23,6 +23,12 @@
 
 #include <boost/random.hpp>
 #include <boost/multiprecision/gmp.hpp>
+#include <cmath>
+#include <gmp.h>
+
+#ifndef M_LN2
+#define M_LN2 (0.693147180559945309417)
+#endif
 
 typedef boost::multiprecision::mpz_int bigint;
 
@@ -68,18 +74,18 @@ class primality
     }
 
 public:
-    enum _primality_result
+    enum _mr_result
     {
         prime,
         probably_prime,
         composite
     };
-    typedef enum _primality_result primality_result;
+    typedef enum _mr_result mr_result;
 
     static std::vector<bigint> factors(bigint x)
     {
         std::vector<bigint> result;
-        if (is_prime(x) != composite == primality::primality_result::prime)
+        if (is_prime(x) == primality::mr_result::prime)
         {
             return result;
         }
@@ -89,7 +95,7 @@ public:
             bigint i = 2;
             bool found = false;
             bigint p;
-            while (i*i <= z and !found)
+            while (i*i <= z && !found)
             {
                 if (z % i == 0)
                 {
@@ -124,18 +130,18 @@ public:
         return exp;
     }
 
-    static primality_result is_prime(bigint n, bool fast = true)
+    static mr_result is_prime(bigint n, bool fast = true)
     {
         if (n <= 1 || n == 4)
         {
             return composite;
         }
-        if (n <= 5)
+        if (n <= 3)
         {
             return prime;
         }
         std::vector<bigint> A;
-        primality_result result = prime;
+        mr_result result = prime;
         if (n < 2047)
         {
             A = {2};
@@ -194,7 +200,7 @@ public:
         }
         else
         {
-            const size_t amax = 2UL * std::max(2UL, static_cast<size_t>(sqr(double(log2(n)) / M_LN2)));
+            const long amax = 2 * static_cast<long>(sqr(double(log2(n)) / M_LN2));
             if (fast)
             {
                 A = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41};
@@ -211,7 +217,7 @@ public:
             }
             else
             {
-                A.reserve(amax);
+                A.reserve(static_cast<size_t>(amax));
                 for (bigint a = 2; a < amax; ++a)
                 {
                     A.push_back(a);
