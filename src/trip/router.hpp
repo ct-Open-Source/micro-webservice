@@ -39,59 +39,90 @@ namespace trip
 
     class router
     {
-        typedef std::function<response(request const &, std::regex const &)> handler_t;
+        typedef std::function<response(request const &)> handler_t;
         struct route
         {
             http::verb const verb;
             std::regex const endpoint;
-            handler_t const &handler;
+            handler_t callback;
+            bool serialize;
             std::unique_ptr<std::mutex> mutex;
-            bool serialize{false};
             route() = delete;
-            route(http::verb const &verb, std::regex const &endpoint, handler_t const &handler, bool serialize)
+            route(http::verb const &verb, std::regex const &endpoint, handler_t callback, bool serialize)
             : verb(verb)
             , endpoint(endpoint)
-            , handler(handler)
-            , mutex(std::make_unique<std::mutex>())
+            , callback(callback)
             , serialize(serialize)
+            , mutex(std::make_unique<std::mutex>())
             {
             }
         };
+        std::vector<route> routes_;
 
     public:
-        router &get(std::regex endpoint, handler_t handler, bool serialize) noexcept
+        template<typename F, typename... Args>
+        router &get(std::regex endpoint, F handler, bool serialize, Args... args)
         {
-            routes_.emplace_back(http::verb::get, endpoint, handler, serialize);
+            handler_t callback = [&handler, &endpoint, &args...](const request &req)
+            {
+                return handler(req, endpoint, args...);
+            };
+            routes_.emplace_back(http::verb::get, endpoint, callback, serialize);
             return *this;
         }
 
-        router &post(std::regex endpoint, handler_t handler, bool serialize) noexcept
+        template<typename F, typename... Args>
+        router &post(std::regex endpoint, F handler, bool serialize, Args... args)
         {
-            routes_.emplace_back(http::verb::post, endpoint, handler, serialize);
+            handler_t callback = [&handler, &endpoint, &args...](const request &req)
+            {
+                return handler(req, endpoint, args...);
+            };
+            routes_.emplace_back(http::verb::post, endpoint, callback, serialize);
             return *this;
         }
 
-        router &options(std::regex endpoint, handler_t handler, bool serialize) noexcept
+        template<typename F, typename... Args>
+        router &head(std::regex endpoint, F handler, bool serialize, Args... args)
         {
-            routes_.emplace_back(http::verb::options, endpoint, handler, serialize);
+            handler_t callback = [&handler, &endpoint, &args...](const request &req)
+            {
+                return handler(req, endpoint, args...);
+            };
+            routes_.emplace_back(http::verb::head, endpoint, callback, serialize);
             return *this;
         }
 
-        router &head(std::regex endpoint, handler_t handler, bool serialize) noexcept
+        template<typename F, typename... Args>
+        router &options(std::regex endpoint, F handler, bool serialize, Args... args)
         {
-            routes_.emplace_back(http::verb::head, endpoint, handler, serialize);
+            handler_t callback = [&handler, &endpoint, &args...](const request &req)
+            {
+                return handler(req, endpoint, args...);
+            };
+            routes_.emplace_back(http::verb::options, endpoint, callback, serialize);
             return *this;
         }
 
-        router &put(std::regex endpoint, handler_t handler, bool serialize) noexcept
+        template<typename F, typename... Args>
+        router &put(std::regex endpoint, F handler, bool serialize, Args... args)
         {
-            routes_.emplace_back(http::verb::put, endpoint, handler, serialize);
+            handler_t callback = [&handler, &endpoint, &args...](const request &req)
+            {
+                return handler(req, endpoint, args...);
+            };
+            routes_.emplace_back(http::verb::put, endpoint, callback, serialize);
             return *this;
         }
 
-        router &patch(std::regex endpoint, handler_t handler, bool serialize) noexcept
+        template<typename F, typename... Args>
+        router &patch(std::regex endpoint, F handler, bool serialize, Args... args)
         {
-            routes_.emplace_back(http::verb::patch, endpoint, handler, serialize);
+            handler_t callback = [&handler, &endpoint, &args...](const request &req)
+            {
+                return handler(req, endpoint, args...);
+            };
+            routes_.emplace_back(http::verb::patch, endpoint, callback, serialize);
             return *this;
         }
 
@@ -109,16 +140,13 @@ namespace trip
                     if (r.serialize)
                     {
                         std::lock_guard<std::mutex> lock(*r.mutex.get());
-                        return r.handler(req, r.endpoint);
+                        return r.callback(req);
                     }
-                    return r.handler(req, r.endpoint);
+                    return r.callback(req);
                 }
             }
             return trip::response{http::status::not_found, target->path() + " not found", "text/plain"};
         }
-
-    private:
-        std::vector<route> routes_;
     };
 
 }

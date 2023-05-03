@@ -53,13 +53,13 @@ void hello()
 void usage()
 {
   std::cout << "Usage:" << std::endl
-            << "  prime-webservice [<ip> <port> <num_workers> <num_threads>]" << std::endl
+            << "  micro-webservice [<ip> <port> <num_workers> <num_threads>]" << std::endl
             << std::endl
             << "for example:" << std::endl
-            << "  prime-webservice 0.0.0.0 8081 2 2" << std::endl
+            << "  micro-webservice 0.0.0.0 8081 2 2" << std::endl
             << std::endl
             << "or just:" << std::endl
-            << "  prime-webservice" << std::endl
+            << "  micro-webservice" << std::endl
             << std::endl
             << "to use the defaults: " << DEFAULT_HOST << " " << DEFAULT_PORT << " N N" << std::endl
             << "where N stands for the number of CPU cores ("
