@@ -3,16 +3,12 @@
 ## Für c’t-Leser
 
 Dieses Repository enthält den Quellcode für den in c’t 7–9/2023 entwickelten Webservice. Um es auf Ihren Rechner zu bekommen, müssen Sie es klonen:
-Dieses Repository enthält den Quellcode für den in c’t 7–9/2023 entwickelten Webservice. Um es auf Ihren Rechner zu bekommen, müssen Sie es klonen:
 
 ```
-git clone https://github.com/ct-Open-Source/micro-webservice.git ct-webservice
-cd ct-webservice
-git clone https://github.com/ct-Open-Source/micro-webservice.git ct-webservice
-cd ct-webservice
+git clone https://github.com/ct-Open-Source/micro-webservice.git
+cd micro-webservice
 ```
 
-Der Code für den [1. Teil](https://www.heise.de/select/ct/2023/7/2303016374942185339) befindet sich im Branch „part1“. Sie checken ihn aus mit
 Der Code für den [1. Teil](https://www.heise.de/select/ct/2023/7/2303016374942185339) befindet sich im Branch „part1“. Sie checken ihn aus mit
 
 ```
@@ -103,8 +99,6 @@ copy libgmpxx-9.lib gmpxx.lib
 Zum Erzeugen der Build-Dateien kommt [CMake](https://cmake.org/) zum Einsatz:
 
 ```
-git clone https://github.com/ct-Open-Source/micro-webservice.git
-cd micro-webservice
 mkdir -p build
 cd build
 cmake -DCMAKE_BUILD_TYPE=Release ..
@@ -135,7 +129,6 @@ aufrufen können.
 ### WSL/Windows 11
 
 ```
-git clone https://github.com/ct-Open-Source/micro-webservice.git
 cd micro-webservice
 mkdir -p build
 cd build
@@ -146,7 +139,6 @@ BOOST_ROOT=~/dev/boost_1_82_0 cmake -DCMAKE_BUILD_TYPE=Release ..
 ### Windows
 
 ```
-git clone https://github.com/ct-Open-Source/micro-webservice.git
 cd micro-webservice
 md build
 cd build
