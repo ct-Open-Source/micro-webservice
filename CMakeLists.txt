@@ -7,7 +7,7 @@ project(micro-webservice VERSION 3 LANGUAGES CXX)
 if (UNIX)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -pedantic")
-	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O2")
+	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O2 -Wno-deprecated-declarations")
 endif (UNIX)
 
 if (MSVC)
@@ -47,9 +47,9 @@ include_directories(${GMP_C_INCLUDES})
 link_directories(${GMP_LIB_DIR})
 
 add_executable(micro-webservice 
-  main.cpp
-  httpworker.cpp
-  helper.cpp
+  src/main.cpp
+  src/httpworker.cpp
+  src/helper.cpp
 )
 
 

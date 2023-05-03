@@ -222,7 +222,6 @@ struct handle_mult : trip::handler
         {
             return trip::response{trip::status::bad_request, e.what(), "text/plain"};
         }
-        std::cout << a << " * " << b << " = " << (a*b) << std::endl;
         return trip::response{trip::status::ok, std::to_string(a * b), "text/plain"};
     }
 };
